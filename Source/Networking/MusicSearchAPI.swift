@@ -11,46 +11,36 @@ public struct MusicSearchAPI {
     static func searchTrack() {
         trackSearchURL = nil
 
-        searchItunes()
+        guard let trackName = RadioPlayer.currentTrack else { return }
+
+        switch Settings.musicSearchProvider {
+        case .youtubeMusic:
+            searchYouTubeMusic(trackName)
+        case .spotify:
+            searchSpotify(trackName)
+        case .appleMusic:
+            searchAppleMusic(trackName)
+        }
     }
 }
 
 private extension MusicSearchAPI {
-    // MARK: - Networking
+    static func searchYouTubeMusic(_ trackName: String) {
+        guard let encoded = trackName.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) else { return }
+        trackSearchURL = URL(string: "https://music.youtube.com/search?q=" + encoded)
+    }
+
+    static func searchSpotify(_ trackName: String) {
+        guard let encoded = trackName.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) else { return }
+        trackSearchURL = URL(string: "https://open.spotify.com/search/" + encoded)
+    }
+
+    static func searchAppleMusic(_ trackName: String) {
+        guard let encoded = trackName.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) else { return }
+        trackSearchURL = URL(string: "https://music.apple.com/us/search?term=" + encoded)
+    }
 
     struct SearchResultsList: Codable {
         let results: [SearchResult]
-    }
-
-    static func searchItunes() {
-        guard let trackName = RadioPlayer.currentTrack else { return }
-
-        var iTunesSearchURL = URLComponents(string: "https://itunes.apple.com/search")!
-        iTunesSearchURL.queryItems = [URLQueryItem(name: "term", value: trackName),
-                                      URLQueryItem(name: "entity", value: "song"),
-                                      URLQueryItem(name: "limit", value: "1"),
-                                      URLQueryItem(name: "at", value: "1000lHGx")]
-
-        guard let finalURL = iTunesSearchURL.url else { fallbackToGoogle(); return }
-
-        let session = URLSession(configuration: URLSessionConfiguration.default)
-        let request = URLRequest(url: finalURL)
-
-        session.dataTask(with: request) { data, _, _ in
-            guard let data = data else { fallbackToGoogle(); return }
-
-            if let channelList = try? JSONDecoder().decode(SearchResultsList.self, from: data), let resultURL = channelList.results.first?.trackViewUrl {
-                trackSearchURL = resultURL
-            } else {
-                fallbackToGoogle()
-                Log.error("iTunesSearch: error")
-            }
-            }.resume()
-    }
-
-    static func fallbackToGoogle() {
-        guard let trackName = RadioPlayer.currentTrack?.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) else { return }
-
-        trackSearchURL = URL(string: "https://www.google.ru/search?q=" + trackName)
     }
 }

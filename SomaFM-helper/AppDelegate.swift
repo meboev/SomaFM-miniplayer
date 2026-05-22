@@ -23,14 +23,17 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
         // Get path to main app
         let helperBundleURL = URL(fileURLWithPath: Bundle.main.bundlePath)
-        let mainAppBundleURL = helperBundleURL .deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent()
-        let mainAppBundle = Bundle(url: mainAppBundleURL)
+        let mainAppBundleURL = helperBundleURL.deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent()
 
         // Launch main app
-        if let binaryPath = mainAppBundle?.executablePath {
-            NSWorkspace.shared.launchApplication(binaryPath)
+        NSWorkspace.shared.openApplication(at: mainAppBundleURL,
+                                           configuration: NSWorkspace.OpenConfiguration()) { _, error in
+            if let error = error {
+                print("SomaFM-helper: Failed to launch main app: \(error)")
+            }
+            DispatchQueue.main.async {
+                NSApp.terminate(nil)
+            }
         }
-
-        NSApp.terminate(nil)
     }
 }

@@ -7,18 +7,16 @@ import Foundation
 import ServiceManagement
 
 struct StartAtLogin {
-    private static let helperBundleId = (Bundle.main.bundleIdentifier ?? "") + "-helper"
-
     static var isEnabled: Bool {
         set {
-            SMLoginItemSetEnabled(helperBundleId as CFString, newValue)
+            if newValue {
+                try? SMAppService.mainApp.register()
+            } else {
+                try? SMAppService.mainApp.unregister()
+            }
         }
         get {
-            guard let jobs = (SMCopyAllJobDictionaries(kSMDomainUserLaunchd).takeRetainedValue() as? [[String: AnyObject]]) else {
-                return false
-            }
-            let job = jobs.first { $0["Label"] as? String == helperBundleId }
-            return job?["OnDemand"] as? Bool ?? false
+            return SMAppService.mainApp.status == .enabled
         }
     }
 }

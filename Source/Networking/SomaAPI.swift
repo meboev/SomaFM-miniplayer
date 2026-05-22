@@ -4,9 +4,11 @@
 //  Copyright © 2017 Evgeny Aleksandrov. All rights reserved.
 
 import Foundation
+import Cocoa
 
 public extension Notification.Name {
     static let somaApiChannelsUpdated = Notification.Name("SomaAPI.Channels.Updated")
+    static let somaApiError = Notification.Name("SomaAPI.Error")
 }
 
 public struct SomaAPI {
@@ -24,6 +26,17 @@ public struct SomaAPI {
     static func loadChannels() {
         getChannelsFromDisk()
         loadChannelsFromAPI()
+    }
+
+    static func showError(_ message: String) {
+        DispatchQueue.main.async {
+            let alert = NSAlert()
+            alert.messageText = "SomaFM Error"
+            alert.informativeText = message
+            alert.alertStyle = .warning
+            alert.addButton(withTitle: "OK")
+            alert.runModal()
+        }
     }
 }
 
@@ -47,15 +60,33 @@ private extension SomaAPI {
         let session = URLSession(configuration: URLSessionConfiguration.default)
         let request = URLRequest(url: channelsURL)
 
-        session.dataTask(with: request) { data, _, _ in
-            guard let data = data else { return }
+        session.dataTask(with: request) { data, response, error in
+            if let error = error {
+                showError("Failed to load channels: \(error.localizedDescription)")
+                return
+            }
+
+            guard let httpResponse = response as? HTTPURLResponse else {
+                showError("Invalid response from SomaFM API")
+                return
+            }
+
+            guard (200...299).contains(httpResponse.statusCode) else {
+                showError("SomaFM API returned status \(httpResponse.statusCode)")
+                return
+            }
+
+            guard let data = data else {
+                showError("No data received from SomaFM API")
+                return
+            }
 
             do {
                 let channelList = try JSONDecoder().decode(ChannelList.self, from: data)
                 self.channels = channelList.channels
                 SomaAPI.saveChannelsToDisk()
             } catch {
-                print("SomaAPI: Error loading channels from API")
+                showError("Failed to parse channels: \(error.localizedDescription)")
             }
         }.resume()
     }
@@ -63,7 +94,10 @@ private extension SomaAPI {
     // MARK: - Persistence
 
     static func fileCacheURL() -> URL? {
-        return FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first?.appendingPathComponent("somafm_channels.json")
+        guard let appSupport = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first else { return nil }
+        let appDir = appSupport.appendingPathComponent("SomaFM miniplayer")
+        try? FileManager.default.createDirectory(at: appDir, withIntermediateDirectories: true)
+        return appDir.appendingPathComponent("somafm_channels.json")
     }
 
     static func saveChannelsToDisk() {

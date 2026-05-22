@@ -1,27 +1,44 @@
 # SomaFM miniplayer
 
-[![CI Status](http://img.shields.io/travis/ealeksandrov/SomaFM-miniplayer.svg)](https://travis-ci.org/ealeksandrov/SomaFM-miniplayer)
-[![Latest Release](https://img.shields.io/github/release/ealeksandrov/SomaFM-miniplayer.svg)](https://github.com/ealeksandrov/SomaFM-miniplayer/releases/latest)
-[![License](https://img.shields.io/github/license/ealeksandrov/SomaFM-miniplayer.svg)](LICENSE.md)
-![Platform](https://img.shields.io/badge/platform-macos-lightgrey.svg)
+[![Latest Release](https://img.shields.io/badge/release-2.0.0-blue.svg)](https://github.com/meboev/SomaFM-miniplayer/releases/latest)
+[![License](https://img.shields.io/github/license/meboev/SomaFM-miniplayer.svg)](LICENSE.md)
+![Platform](https://img.shields.io/badge/platform-macos%20(Apple%20Silicon)-lightgrey.svg)
 
-![Screenshot](01.jpg)
+![Screenshot](shot.png)
 
-This is unofficial player that gives you minimal, background playback of SomaFM channels.
+This is an unofficial player that gives you minimal, background playback of SomaFM channels.
 
 ## Installation
 
-* Download latest version (sandboxed) from [Mac App Store](https://itunes.apple.com/us/app/somafm-miniplayer/id1303140142?mt=12&at=1000lHGx);
-* Download dmg (non-sandboxed) from [releases page](https://github.com/ealeksandrov/SomaFM-miniplayer/releases/latest);
-* Or clone this repo and build it from source. Sandboxing is turned **on** by default, remember to turn it off if you need media keys support.
+* Download the DMG from the [releases page](https://github.com/meboev/SomaFM-miniplayer/releases/latest)
+* Or clone this repo and build it from source:
 
-### Difference between versions
+```bash
+./build.sh
+./create-dmg.sh
+./install.sh
+```
 
-In sandboxed (Mac App Store) version Mac Media Keys (⏪⏯⏩) are not supported.
+## Changes in 2.0.0
 
-## Author
+* Apple Silicon only (arm64)
+* Removed all Carthage dependencies (Reachability, MediaKeyTap)
+* Replaced Reachability with built-in `NWPathMonitor`
+* Replaced MediaKeyTap with built-in `MPRemoteCommandCenter`
+* Replaced `NSUserNotification` with `UserNotifications` framework
+* Replaced deprecated `SMLoginItemSetEnabled` with `SMAppService`
+* Fixed stream playback by resolving PLS playlists and adding User-Agent header
+* Track metadata fetched via SomaFM songs API (ICY metadata no longer works on macOS 15+)
+* Updated Swift to 5.0, deployment target to macOS 14.0
+* Removed shell script build phases (swiftlint, git version bump)
+* Added error dialogs for network/playback failures
+* Added build, install, and DMG creation scripts
 
-Created and maintained by Evgeny Aleksandrov ([@ealeksandrov](https://twitter.com/ealeksandrov)).
+## Authors
+
+Originally created by Evgeny Aleksandrov ([@ealeksandrov](https://twitter.com/ealeksandrov)).
+
+Maintained and updated by Milen Boev ([@meboev](https://github.com/meboev)).
 
 ## License
 

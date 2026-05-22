@@ -13,9 +13,9 @@
                 <application id="hnw-xV-0zn" sceneMemberID="viewController">
                     <menu key="mainMenu" title="Main Menu" systemMenu="main" id="AYu-sK-qS6">
                         <items>
-                            <menuItem title="SomaFM" id="1Xt-HY-uBw">
+                            <menuItem title="SomaFM miniplayer" id="1Xt-HY-uBw">
                                 <modifierMask key="keyEquivalentModifierMask"/>
-                                <menu key="submenu" title="SomaFM" systemMenu="apple" id="uQy-DD-JDr">
+                                <menu key="submenu" title="SomaFM miniplayer" systemMenu="apple" id="uQy-DD-JDr">
                                     <items>
                                         <menuItem title="About SomaFM" id="5kV-Vb-QxS">
                                             <modifierMask key="keyEquivalentModifierMask"/>
@@ -49,7 +49,7 @@
                                             </connections>
                                         </menuItem>
                                         <menuItem isSeparatorItem="YES" id="kCx-OE-vgT"/>
-                                        <menuItem title="Quit SomaFM" keyEquivalent="q" id="4sb-4s-VLi">
+                                        <menuItem title="Quit SomaFM miniplayer" keyEquivalent="q" id="4sb-4s-VLi">
                                             <connections>
                                                 <action selector="terminate:" target="Ady-hI-5gd" id="Te7-pn-YzF"/>
                                             </connections>
@@ -76,7 +76,7 @@
                 <windowController storyboardIdentifier="PreferencesWindow" id="B8D-0N-5wS" sceneMemberID="viewController">
                     <window key="window" title="Preferences" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" oneShot="NO" releasedWhenClosed="NO" showsToolbarButton="NO" visibleAtLaunch="NO" animationBehavior="default" id="IQv-IB-iLA">
                         <windowStyleMask key="styleMask" titled="YES" closable="YES"/>
-                        <rect key="contentRect" x="325" y="661" width="400" height="200"/>
+                        <rect key="contentRect" x="325" y="661" width="400" height="380"/>
                         <rect key="screenRect" x="0.0" y="0.0" width="1680" height="1027"/>
                         <connections>
                             <outlet property="delegate" destination="B8D-0N-5wS" id="98r-iN-zZc"/>
@@ -95,7 +95,7 @@
             <objects>
                 <viewController id="XfG-lQ-9wD" customClass="PreferencesViewController" customModule="SomaFM_miniplayer" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" wantsLayer="YES" id="m2S-Jp-Qdl">
-                        <rect key="frame" x="0.0" y="0.0" width="400" height="338"/>
+                        <rect key="frame" x="0.0" y="0.0" width="400" height="380"/>
                         <autoresizingMask key="autoresizingMask"/>
                         <subviews>
                             <button translatesAutoresizingMaskIntoConstraints="NO" id="SI3-e1-D9B">
@@ -187,6 +187,38 @@
                             <box verticalHuggingPriority="750" boxType="separator" translatesAutoresizingMaskIntoConstraints="NO" id="ovd-bD-YWD">
                                 <rect key="frame" x="20" y="92" width="360" height="5"/>
                             </box>
+                            <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="msp-LB-01a">
+                                <rect key="frame" x="18" y="62" width="125" height="17"/>
+                                <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Music search provider" id="msp-LB-02a">
+                                    <font key="font" metaFont="system"/>
+                                    <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
+                                    <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                                </textFieldCell>
+                            </textField>
+                            <popUpButton verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="msp-PB-01a">
+                                <rect key="frame" x="248" y="57" width="135" height="26"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" relation="greaterThanOrEqual" constant="130" id="msp-WC-01a"/>
+                                </constraints>
+                                <popUpButtonCell key="cell" type="push" title="YouTube Music" bezelStyle="rounded" alignment="left" lineBreakMode="truncatingTail" state="on" borderStyle="borderAndBezel" imageScaling="proportionallyDown" inset="2" selectedItem="msp-MI-01a" id="msp-PC-01a">
+                                    <behavior key="behavior" lightByBackground="YES" lightByGray="YES"/>
+                                    <font key="font" metaFont="menu"/>
+                                    <menu key="menu" id="msp-MN-01a">
+                                        <items>
+                                            <menuItem title="YouTube Music" state="on" id="msp-MI-01a"/>
+                                            <menuItem title="Spotify" id="msp-MI-02a"/>
+                                            <menuItem title="Apple Music" id="msp-MI-03a"/>
+                                        </items>
+                                    </menu>
+                                </popUpButtonCell>
+                                <connections>
+                                    <action selector="updateMusicProvider:" target="XfG-lQ-9wD" id="msp-AC-01a"/>
+                                    <binding destination="KYv-Wp-8ng" name="selectedIndex" keyPath="values.RadioPlayer.MusicSearchProvider" id="msp-BD-01a"/>
+                                </connections>
+                            </popUpButton>
+                            <box verticalHuggingPriority="750" boxType="separator" translatesAutoresizingMaskIntoConstraints="NO" id="msp-SP-01a">
+                                <rect key="frame" x="20" y="39" width="360" height="5"/>
+                            </box>
                             <customView translatesAutoresizingMaskIntoConstraints="NO" id="dUi-8Y-F9m">
                                 <rect key="frame" x="95" y="36" width="210" height="48"/>
                                 <subviews>
@@ -226,22 +258,11 @@
                                     <constraint firstItem="XHL-DP-dme" firstAttribute="centerX" secondItem="dUi-8Y-F9m" secondAttribute="centerX" constant="24" id="hYK-Qx-MDD"/>
                                 </constraints>
                             </customView>
-                            <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="JtP-VU-YdH" customClass="HyperTextField" customModule="SomaFM_miniplayer" customModuleProvider="target">
-                                <rect key="frame" x="29" y="10" width="342" height="16"/>
-                                <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="This application is open source and can be found on GitHub" id="6km-u5-Bsb">
-                                    <font key="font" metaFont="system" size="12"/>
-                                    <color key="textColor" name="secondaryLabelColor" catalog="System" colorSpace="catalog"/>
-                                    <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
-                                </textFieldCell>
-                                <userDefinedRuntimeAttributes>
-                                    <userDefinedRuntimeAttribute type="string" keyPath="href" value="https://github.com/ealeksandrov/SomaFM-miniplayer"/>
-                                </userDefinedRuntimeAttributes>
-                            </textField>
                         </subviews>
                         <constraints>
                             <constraint firstAttribute="trailing" secondItem="ADb-RQ-2cx" secondAttribute="trailing" constant="20" id="0k6-Pi-CTe"/>
                             <constraint firstItem="mi1-Y2-4N3" firstAttribute="leading" secondItem="SI3-e1-D9B" secondAttribute="leading" id="1gS-Zx-aoy"/>
-                            <constraint firstItem="dUi-8Y-F9m" firstAttribute="top" secondItem="ovd-bD-YWD" secondAttribute="bottom" constant="10" id="1vW-v9-DoA"/>
+
                             <constraint firstAttribute="trailing" relation="greaterThanOrEqual" secondItem="LfQ-DL-gam" secondAttribute="trailing" constant="20" id="44E-dd-4xN"/>
                             <constraint firstAttribute="trailing" secondItem="ep3-JP-TPh" secondAttribute="trailing" constant="20" id="4Ta-Vs-f18"/>
                             <constraint firstItem="SI3-e1-D9B" firstAttribute="top" secondItem="m2S-Jp-Qdl" secondAttribute="top" constant="20" id="4fX-fA-6uC"/>
@@ -258,6 +279,15 @@
                             <constraint firstItem="n0g-yw-ZC2" firstAttribute="leading" secondItem="SI3-e1-D9B" secondAttribute="leading" id="NzH-Vu-DXD"/>
                             <constraint firstItem="PmU-Zt-r8g" firstAttribute="leading" secondItem="SI3-e1-D9B" secondAttribute="leading" id="RIP-QP-r5w"/>
                             <constraint firstItem="ovd-bD-YWD" firstAttribute="top" secondItem="cIX-7v-fyZ" secondAttribute="bottom" constant="20" id="Ro5-qQ-Yrb"/>
+                            <constraint firstItem="msp-LB-01a" firstAttribute="top" secondItem="ovd-bD-YWD" secondAttribute="bottom" constant="20" id="msp-CT-01a"/>
+                            <constraint firstItem="msp-LB-01a" firstAttribute="leading" secondItem="m2S-Jp-Qdl" secondAttribute="leading" constant="20" id="msp-CT-02a"/>
+                            <constraint firstItem="msp-LB-01a" firstAttribute="centerY" secondItem="msp-PB-01a" secondAttribute="centerY" id="msp-CT-03a"/>
+                            <constraint firstAttribute="trailing" secondItem="msp-PB-01a" secondAttribute="trailing" constant="20" id="msp-CT-04a"/>
+                            <constraint firstItem="msp-PB-01a" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="msp-LB-01a" secondAttribute="trailing" constant="20" id="msp-CT-05a"/>
+                            <constraint firstItem="msp-SP-01a" firstAttribute="top" secondItem="msp-LB-01a" secondAttribute="bottom" constant="20" id="msp-CT-06a"/>
+                            <constraint firstItem="msp-SP-01a" firstAttribute="leading" secondItem="m2S-Jp-Qdl" secondAttribute="leading" constant="20" id="msp-CT-07a"/>
+                            <constraint firstAttribute="trailing" secondItem="msp-SP-01a" secondAttribute="trailing" constant="20" id="msp-CT-08a"/>
+                            <constraint firstItem="dUi-8Y-F9m" firstAttribute="top" secondItem="msp-SP-01a" secondAttribute="bottom" constant="10" id="msp-CT-09a"/>
                             <constraint firstItem="JtP-VU-YdH" firstAttribute="centerX" secondItem="m2S-Jp-Qdl" secondAttribute="centerX" id="TkZ-aN-UNH"/>
                             <constraint firstItem="mi1-Y2-4N3" firstAttribute="top" secondItem="n0g-yw-ZC2" secondAttribute="bottom" constant="5" id="WPj-Bt-h9i"/>
                             <constraint firstItem="PmU-Zt-r8g" firstAttribute="top" secondItem="SI3-e1-D9B" secondAttribute="bottom" constant="5" id="Z2e-n7-sLt"/>

@@ -37,6 +37,10 @@ Carthage/
 # Swift Package Manager
 .build/
 
+# Build output
+build/
+*.dmg
+
 # fastlane
 fastlane/report.xml
 fastlane/Preview.html

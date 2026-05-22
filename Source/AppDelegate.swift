@@ -4,20 +4,20 @@
 //  Copyright © 2017 Evgeny Aleksandrov. All rights reserved.
 
 import Cocoa
-import MediaKeyTap
+import MediaPlayer
+import UserNotifications
 
 @NSApplicationMain
-class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, MediaKeyTapDelegate {
+class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
 
     let menubarController = MenubarController()
-    var mediaKeyTap: MediaKeyTap?
 
     private var prefsWindowController: NSWindowController?
     var preferencesWindowController: NSWindowController? {
         if prefsWindowController == nil {
-            let storyboard = NSStoryboard(name: NSStoryboard.Name(rawValue: "Main"), bundle: nil)
+            let storyboard = NSStoryboard(name: NSStoryboard.Name("Main"), bundle: nil)
             prefsWindowController = storyboard.instantiateController(withIdentifier:
-                NSStoryboard.SceneIdentifier(rawValue: "PreferencesWindow")) as? NSWindowController
+                NSStoryboard.SceneIdentifier("PreferencesWindow")) as? NSWindowController
         }
         return prefsWindowController
     }
@@ -27,12 +27,21 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, MediaKeyTa
     static let bundleVersion: String = Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? ""
 
     func applicationDidFinishLaunching(_ aNotification: Notification) {
+        UserDefaults.standard.register(defaults: [
+            UserDefaultsKey.apiChannelsSortOrder: ChannelsSortOrder.listeners.rawValue,
+            UserDefaultsKey.shouldPlayOnLaunch: true,
+            UserDefaultsKey.notificationsEnabled: true,
+            UserDefaultsKey.musicSearchProvider: MusicSearchProvider.youtubeMusic.rawValue,
+            UserDefaultsKey.volume: Float(0.07)
+        ])
+
         Log.info("Starting \(AppDelegate.bundleId) v\(AppDelegate.bundleShortVersion) (\(AppDelegate.bundleVersion))")
 
         UserDefaults.standard.register(defaults: ["RadioPlayer.NotificationsEnabled": true])
 
-        mediaKeyTap = MediaKeyTap(delegate: self)
-        mediaKeyTap?.start()
+        UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound]) { _, _ in }
+
+        setupRemoteCommands()
     }
 
     // MARK: - NSWindowDelegate
@@ -41,16 +50,30 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, MediaKeyTa
         prefsWindowController = nil
     }
 
-    // MARK: - NSWindowDelegate
+    // MARK: - Media Keys
 
-    func handle(mediaKey: MediaKey, event: KeyEvent) {
-        switch mediaKey {
-        case .playPause:
-            menubarController.togglePlay()
-        case .previous, .rewind:
-            menubarController.previousTap()
-        case .next, .fastForward:
-            menubarController.nextTap()
+    private func setupRemoteCommands() {
+        let commandCenter = MPRemoteCommandCenter.shared()
+
+        commandCenter.playCommand.addTarget { [weak self] _ in
+            self?.menubarController.togglePlay()
+            return .success
+        }
+        commandCenter.pauseCommand.addTarget { [weak self] _ in
+            self?.menubarController.togglePlay()
+            return .success
+        }
+        commandCenter.togglePlayPauseCommand.addTarget { [weak self] _ in
+            self?.menubarController.togglePlay()
+            return .success
+        }
+        commandCenter.previousTrackCommand.addTarget { [weak self] _ in
+            self?.menubarController.previousTap()
+            return .success
+        }
+        commandCenter.nextTrackCommand.addTarget { [weak self] _ in
+            self?.menubarController.nextTap()
+            return .success
         }
     }
 }

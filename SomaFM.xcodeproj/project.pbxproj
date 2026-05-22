@@ -21,10 +21,7 @@
 		558AD6D81F82C116000013B1 /* Log.swift in Sources */ = {isa = PBXBuildFile; fileRef = 558AD6D71F82C114000013B1 /* Log.swift */; };
 		558AD6D91F82C119000013B1 /* PreferencesViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 558AD6D51F82C114000013B1 /* PreferencesViewController.swift */; };
 		55B994D11F9E19EB0045844D /* String+Truncate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 55B994D01F9E19EB0045844D /* String+Truncate.swift */; };
-		55C2006620C96D370008833D /* Reachability.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 55C2006520C96D370008833D /* Reachability.framework */; };
-		55C2006720C96D370008833D /* Reachability.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 55C2006520C96D370008833D /* Reachability.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		55D4A9CB1F9E6688000227E0 /* MediaKeyTap.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 55D4A9CA1F9E6688000227E0 /* MediaKeyTap.framework */; };
-		55D4A9CC1F9E6688000227E0 /* MediaKeyTap.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 55D4A9CA1F9E6688000227E0 /* MediaKeyTap.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+
 		55DB7F381F82C488009C3E0E /* Channel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 55DB7F371F82C488009C3E0E /* Channel.swift */; };
 		55DB7F3A1F82C552009C3E0E /* Playlist.swift in Sources */ = {isa = PBXBuildFile; fileRef = 55DB7F391F82C552009C3E0E /* Playlist.swift */; };
 		55DB7F3C1F82CBF6009C3E0E /* SomaAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 55DB7F3B1F82CBF6009C3E0E /* SomaAPI.swift */; };
@@ -39,8 +36,6 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
-				55D4A9CC1F9E6688000227E0 /* MediaKeyTap.framework in Embed Frameworks */,
-				55C2006720C96D370008833D /* Reachability.framework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -77,8 +72,7 @@
 		558AD6D51F82C114000013B1 /* PreferencesViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreferencesViewController.swift; sourceTree = "<group>"; };
 		558AD6D71F82C114000013B1 /* Log.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Log.swift; sourceTree = "<group>"; };
 		55B994D01F9E19EB0045844D /* String+Truncate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "String+Truncate.swift"; sourceTree = "<group>"; };
-		55C2006520C96D370008833D /* Reachability.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Reachability.framework; path = ../Carthage/Build/Mac/Reachability.framework; sourceTree = "<group>"; };
-		55D4A9CA1F9E6688000227E0 /* MediaKeyTap.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MediaKeyTap.framework; path = ../Carthage/Build/Mac/MediaKeyTap.framework; sourceTree = "<group>"; };
+
 		55DB7F371F82C488009C3E0E /* Channel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Channel.swift; sourceTree = "<group>"; };
 		55DB7F391F82C552009C3E0E /* Playlist.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Playlist.swift; sourceTree = "<group>"; };
 		55DB7F3B1F82CBF6009C3E0E /* SomaAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SomaAPI.swift; sourceTree = "<group>"; };
@@ -98,8 +92,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				55D4A9CB1F9E6688000227E0 /* MediaKeyTap.framework in Frameworks */,
-				55C2006620C96D370008833D /* Reachability.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -169,8 +161,6 @@
 		558AD6CB1F82BF34000013B1 /* Supporting-files */ = {
 			isa = PBXGroup;
 			children = (
-				55C2006520C96D370008833D /* Reachability.framework */,
-				55D4A9CA1F9E6688000227E0 /* MediaKeyTap.framework */,
 				558AD6CC1F82BF34000013B1 /* SomaFM.entitlements */,
 				558AD6CD1F82BF34000013B1 /* Info.plist */,
 			);
@@ -245,8 +235,6 @@
 				558AD6AC1F82BDD1000013B1 /* Sources */,
 				558AD6AD1F82BDD1000013B1 /* Frameworks */,
 				558AD6AE1F82BDD1000013B1 /* Resources */,
-				558AD6D21F82C077000013B1 /* ShellScript */,
-				558AD6D31F82C09D000013B1 /* ShellScript */,
 				55871A161F9D294700201637 /* Embed Frameworks */,
 				558ABBF81F9F35C000F2EAD6 /* CopyFiles */,
 			);
@@ -323,34 +311,6 @@
 		};
 /* End PBXResourcesBuildPhase section */
 
-/* Begin PBXShellScriptBuildPhase section */
-		558AD6D21F82C077000013B1 /* ShellScript */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "git=`sh /etc/profile; which git`\nbranch=`${git} rev-parse --abbrev-ref HEAD`\ncommits_count=`${git} rev-list ${branch} | wc -l  | tr -d ' '`\n\nfilepath=\"${BUILT_PRODUCTS_DIR}/${INFOPLIST_PATH}\"\n\necho \"Updating ${filepath}\"\necho \"Current version build ${commits_count}\"\n/usr/libexec/PlistBuddy -c \"Set :CFBundleVersion ${commits_count}\" \"${filepath}\"";
-		};
-		558AD6D31F82C09D000013B1 /* ShellScript */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "if which swiftlint >/dev/null; then\n  swiftlint\nelse\n  echo \"warning: SwiftLint not installed, download from https://github.com/realm/SwiftLint\"\nfi";
-		};
-/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		558ABBE61F9F345700F2EAD6 /* Sources */ = {
@@ -413,10 +373,10 @@
 				DEVELOPMENT_TEAM = 5567X9EQ9Q;
 				INFOPLIST_FILE = "SomaFM-helper/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = "com.ealeksandrov.somafm-helper";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.milenboev.somafm-helper";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
-				SWIFT_VERSION = 4.0;
+				SWIFT_VERSION = 5.0;
 			};
 			name = Debug;
 		};
@@ -429,10 +389,10 @@
 				DEVELOPMENT_TEAM = 5567X9EQ9Q;
 				INFOPLIST_FILE = "SomaFM-helper/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = "com.ealeksandrov.somafm-helper";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.milenboev.somafm-helper";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
-				SWIFT_VERSION = 4.0;
+				SWIFT_VERSION = 5.0;
 			};
 			name = Release;
 		};
@@ -484,7 +444,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				MACOSX_DEPLOYMENT_TARGET = 10.12;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = macosx;
@@ -535,7 +495,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				MACOSX_DEPLOYMENT_TARGET = 10.12;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				SDKROOT = macosx;
 				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
@@ -545,40 +505,36 @@
 		558AD6C11F82BDD1000013B1 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ARCHS = arm64;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = "Supporting-files/SomaFM.entitlements";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				DEVELOPMENT_TEAM = 5567X9EQ9Q;
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(inherited)",
-					"$(PROJECT_DIR)/Carthage/Build/Mac",
-				);
+				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
 				INFOPLIST_FILE = "Supporting-files/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = com.ealeksandrov.somafm;
+				PRODUCT_BUNDLE_IDENTIFIER = com.milenboev.somafm;
 				PRODUCT_NAME = "SomaFM miniplayer";
-				SWIFT_VERSION = 4.0;
+				SWIFT_VERSION = 5.0;
 			};
 			name = Debug;
 		};
 		558AD6C21F82BDD1000013B1 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ARCHS = arm64;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = "Supporting-files/SomaFM.entitlements";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				DEVELOPMENT_TEAM = 5567X9EQ9Q;
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(inherited)",
-					"$(PROJECT_DIR)/Carthage/Build/Mac",
-				);
+				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
 				INFOPLIST_FILE = "Supporting-files/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = com.ealeksandrov.somafm;
+				PRODUCT_BUNDLE_IDENTIFIER = com.milenboev.somafm;
 				PRODUCT_NAME = "SomaFM miniplayer";
-				SWIFT_VERSION = 4.0;
+				SWIFT_VERSION = 5.0;
 			};
 			name = Release;
 		};

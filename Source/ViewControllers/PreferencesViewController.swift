@@ -28,4 +28,8 @@ class PreferencesViewController: NSViewController {
     @IBAction func updateSortOrder(_ sender: NSPopUpButton) {
         NotificationCenter.default.post(name: .somaApiChannelsUpdated, object: nil)
     }
+
+    @IBAction func updateMusicProvider(_ sender: NSPopUpButton) {
+        NotificationCenter.default.post(name: .radioPlayerTrackNameUpdated, object: nil)
+    }
 }

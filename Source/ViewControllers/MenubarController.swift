@@ -4,7 +4,8 @@
 //  Copyright © 2017 Evgeny Aleksandrov. All rights reserved.
 
 import Cocoa
-import Reachability
+import Network
+import UserNotifications
 
 class MenubarController {
     let statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
@@ -26,25 +27,30 @@ class MenubarController {
         }
     }
 
-    init() {
-        SomaAPI.loadChannels()
+    private var hasAutoPlayed = false
+    private var lastNotifiedTrack: String?
 
+    init() {
         setupStatusItem()
         setupMenu()
         setupReachability()
 
-        if Settings.shouldPlayOnLaunch {
-            togglePlay()
-        }
-
-        NotificationCenter.default.addObserver(self, selector: #selector(MenubarController.updateStationsMenu), name: .somaApiChannelsUpdated, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(MenubarController.channelsUpdated), name: .somaApiChannelsUpdated, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(MenubarController.updateTrackName), name: .radioPlayerTrackNameUpdated, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(MenubarController.updatePlaybackState), name: .radioPlayerStateUpdated, object: nil)
+
+        SomaAPI.loadChannels()
+    }
+
+    @objc func channelsUpdated() {
+        updateStationsMenu()
+        if !hasAutoPlayed && Settings.shouldPlayOnLaunch {
+            hasAutoPlayed = true
+            togglePlay()
+        }
     }
 
     func setupStatusItem() {
-        statusItem.highlightMode = false
-
         statusItem.button?.target = self
         statusItem.button?.action = #selector(MenubarController.toggleStatus(_:))
         statusItem.button?.sendAction(on: [.leftMouseUp, .rightMouseUp])
@@ -53,9 +59,6 @@ class MenubarController {
     }
 
     func setupMenu() {
-        trackItem.toolTip = "Click to search this track in iTunes"
-        rightClickMenu.addItem(trackItem)
-
         let volumeItem = NSMenuItem(title: "Volume", action: nil, keyEquivalent: "")
         volumeItem.view = setupVolumeSlider()
         rightClickMenu.addItem(volumeItem)
@@ -68,7 +71,7 @@ class MenubarController {
         preferencesItem.target = self
         rightClickMenu.addItem(preferencesItem)
         rightClickMenu.addItem(NSMenuItem.separator())
-        rightClickMenu.addItem(NSMenuItem(title: "Quit SomaFM", action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q"))
+        rightClickMenu.addItem(NSMenuItem(title: "Quit SomaFM miniplayer", action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q"))
 
         updateStationsMenu()
     }
@@ -111,7 +114,7 @@ class MenubarController {
 
         for channel in sortedChannels {
             let channelItem = NSMenuItem(title: channel.title, action: #selector(MenubarController.selectStation(_:)), keyEquivalent: "")
-            channelItem.tag = channels.index(where: { $0.id == channel.id }) ?? 0
+            channelItem.tag = channels.firstIndex(where: { $0.id == channel.id }) ?? 0
             channelItem.target = self
 
             if channel.id == lastPlayedChannel?.id {
@@ -123,34 +126,50 @@ class MenubarController {
     }
 
     @objc func updateTrackName() {
-        if reachability.connection == .none, RadioPlayer.player.timeControlStatus != .playing {
+        if !isNetworkAvailable, RadioPlayer.player.timeControlStatus != .playing {
             trackItem.title = "Network unavailable"
             trackItem.target = nil
+            if rightClickMenu.items.first != trackItem {
+                rightClickMenu.insertItem(trackItem, at: 0)
+            }
             return
         }
 
         guard let trackName = RadioPlayer.currentTrack, !trackName.isEmpty else {
-            trackItem.title = "..."
-            trackItem.target = nil
+            if rightClickMenu.items.first == trackItem {
+                rightClickMenu.removeItem(trackItem)
+            }
             return
         }
 
         let truncatedTrackName = trackName.trunc(length: 35)
-        guard truncatedTrackName != trackItem.title else { return }
-
         trackItem.title = truncatedTrackName
         trackItem.target = self
-
-        if Settings.notificationsEnabled {
-            showUserNotification()
+        let providerName: String
+        switch Settings.musicSearchProvider {
+        case .youtubeMusic: providerName = "YouTube Music"
+        case .spotify: providerName = "Spotify"
+        case .appleMusic: providerName = "Apple Music"
         }
+        trackItem.toolTip = "Click to search in \(providerName)"
+        if rightClickMenu.items.first != trackItem {
+            rightClickMenu.insertItem(trackItem, at: 0)
+        }
+        rightClickMenu.update()
 
-        MusicSearchAPI.searchTrack()
+        if truncatedTrackName != lastNotifiedTrack && RadioPlayer.player.timeControlStatus == .playing {
+            lastNotifiedTrack = truncatedTrackName
+            if Settings.notificationsEnabled {
+                showUserNotification()
+            }
+            MusicSearchAPI.searchTrack()
+        }
     }
 
     @objc func updatePlaybackState() {
         setupRecoveringTimerIfNeeded()
         setStatusItem(playing: RadioPlayer.player.timeControlStatus != .paused)
+        updateTrackName()
     }
 
     @objc func selectStation(_ sender: NSMenuItem) {
@@ -183,7 +202,7 @@ class MenubarController {
             return
         }
 
-        guard reachability.connection != .none else {
+        guard isNetworkAvailable else {
             showConnectionError()
             return
         }
@@ -198,7 +217,7 @@ class MenubarController {
     @objc func previousTap() {
         guard let sortedChannels = sortedChannels,
             let lastPlayedChannel = SomaAPI.lastPlayedChannel,
-            let lastPlayedIndex = sortedChannels.index(where: { $0.id == lastPlayedChannel.id })
+            let lastPlayedIndex = sortedChannels.firstIndex(where: { $0.id == lastPlayedChannel.id })
             else { return }
 
         let newIndex = lastPlayedIndex == 0 ? sortedChannels.count - 1 : lastPlayedIndex - 1
@@ -208,7 +227,7 @@ class MenubarController {
     @objc func nextTap() {
         guard let sortedChannels = sortedChannels,
             let lastPlayedChannel = SomaAPI.lastPlayedChannel,
-            let lastPlayedIndex = sortedChannels.index(where: { $0.id == lastPlayedChannel.id })
+            let lastPlayedIndex = sortedChannels.firstIndex(where: { $0.id == lastPlayedChannel.id })
             else { return }
 
         let newIndex = lastPlayedIndex == sortedChannels.count - 1 ? 0 : lastPlayedIndex + 1
@@ -216,20 +235,25 @@ class MenubarController {
     }
 
     @objc func searchTrack() {
-        guard let trackURL = MusicSearchAPI.trackSearchURL else { return }
+        // Re-search with current provider in case it changed
+        MusicSearchAPI.searchTrack()
 
-        NSWorkspace.shared.open(trackURL)
+        // For YouTube Music and Spotify the URL is set synchronously
+        if let trackURL = MusicSearchAPI.trackSearchURL {
+            NSWorkspace.shared.open(trackURL)
+        }
     }
 
     // MARK: - Private
 
     private func selectChannel(_ channel: Channel) {
-        guard let channels = SomaAPI.channels, let selectedChannelIdx = channels.index(where: { $0.id == channel.id }) else { return }
-        guard reachability.connection != .none else {
+        guard let channels = SomaAPI.channels, let selectedChannelIdx = channels.firstIndex(where: { $0.id == channel.id }) else { return }
+        guard isNetworkAvailable else {
             showConnectionError()
             return
         }
 
+        lastNotifiedTrack = nil
         stationsMenu.items.forEach { $0.state = $0.tag == selectedChannelIdx ? .on : .off }
 
         RadioPlayer.play(channel: channel)
@@ -237,16 +261,18 @@ class MenubarController {
     }
 
     private func showMenu() {
-        statusItem.popUpMenu(rightClickMenu)
+        statusItem.menu = rightClickMenu
+        statusItem.button?.performClick(nil)
+        statusItem.menu = nil
     }
 
     private func setStatusItem(playing: Bool) {
         if playing {
-            statusItem.button?.image = NSImage(named: NSImage.Name(rawValue: "media_pause"))
-            statusItem.toolTip = "Click to pause\nRight click to show menu"
+            statusItem.button?.image = NSImage(named: NSImage.Name("media_pause"))
+            statusItem.button?.toolTip = "Click to pause\nRight click to show menu"
         } else {
-            statusItem.button?.image = NSImage(named: NSImage.Name(rawValue: "media_play"))
-            statusItem.toolTip = "Click to play\nRight click to show menu"
+            statusItem.button?.image = NSImage(named: NSImage.Name("media_play"))
+            statusItem.button?.toolTip = "Click to play\nRight click to show menu"
         }
     }
 
@@ -254,34 +280,43 @@ class MenubarController {
         guard let trackName = RadioPlayer.currentTrack else { return }
         let stationName = SomaAPI.lastPlayedChannel?.title ?? "SomaFM"
 
-        let notification = NSUserNotification()
-        notification.title = stationName
-        notification.informativeText = trackName
-        NSUserNotificationCenter.default.deliver(notification)
+        let center = UNUserNotificationCenter.current()
+        center.removeAllDeliveredNotifications()
+
+        let content = UNMutableNotificationContent()
+        content.title = stationName
+        content.body = trackName
+        let request = UNNotificationRequest(identifier: "nowPlaying", content: content, trigger: nil)
+        center.add(request)
     }
 
-    // MARK: - Reachability
+    // MARK: - Reachability (NWPathMonitor)
 
-    let reachability = Reachability(hostname: "api.somafm.com")!
+    private let pathMonitor = NWPathMonitor()
+    private var isNetworkAvailable: Bool = true
     private var resumePlaybackTimer: Timer?
 
     private func setupReachability() {
-        reachability.whenReachable = { _ in
-            self.updateTrackName()
-            self.recoverFromConnectionErrorIfNeeded()
+        pathMonitor.pathUpdateHandler = { [weak self] path in
+            DispatchQueue.main.async {
+                let wasAvailable = self?.isNetworkAvailable ?? true
+                self?.isNetworkAvailable = (path.status == .satisfied)
+
+                if path.status == .satisfied {
+                    self?.updateTrackName()
+                    self?.recoverFromConnectionErrorIfNeeded()
+                } else {
+                    if wasAvailable {
+                        self?.updateTrackName()
+                    }
+                }
+            }
         }
-        reachability.whenUnreachable = { _ in
-            self.updateTrackName()
-        }
-        do {
-            try reachability.startNotifier()
-        } catch {
-            Log.error("Reachability error")
-        }
+        pathMonitor.start(queue: DispatchQueue.global(qos: .utility))
     }
 
     private func setupRecoveringTimerIfNeeded() {
-        guard reachability.connection == .none, RadioPlayer.player.timeControlStatus == .waitingToPlayAtSpecifiedRate else { return }
+        guard !isNetworkAvailable, RadioPlayer.player.timeControlStatus == .waitingToPlayAtSpecifiedRate else { return }
 
         resumePlaybackTimer?.invalidate()
         resumePlaybackTimer = Timer.scheduledTimer(timeInterval: 5,
@@ -305,10 +340,11 @@ class MenubarController {
         RadioPlayer.player.pause()
         setStatusItem(playing: true)
 
-        let notification = NSUserNotification()
-        notification.title = "Network error"
-        notification.informativeText = "Can't connect to SomaFM.com"
-        NSUserNotificationCenter.default.deliver(notification)
+        let content = UNMutableNotificationContent()
+        content.title = "Network error"
+        content.body = "Can't connect to SomaFM.com"
+        let request = UNNotificationRequest(identifier: UUID().uuidString, content: content, trigger: nil)
+        UNUserNotificationCenter.current().add(request)
 
         DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
             self.setStatusItem(playing: false)
