@@ -1,7 +1,7 @@
 //
 //  MusicSearchAPI.swift
 //
-//  Copyright © 2017 Evgeny Aleksandrov. All rights reserved.
+//  Copyright © 2026 Milen Boev. All rights reserved.
 
 import Foundation
 
@@ -38,9 +38,5 @@ private extension MusicSearchAPI {
     static func searchAppleMusic(_ trackName: String) {
         guard let encoded = trackName.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) else { return }
         trackSearchURL = URL(string: "https://music.apple.com/us/search?term=" + encoded)
-    }
-
-    struct SearchResultsList: Codable {
-        let results: [SearchResult]
     }
 }

@@ -1,11 +1,7 @@
-//
-//  RadioPlayer.swift
-//
-//  Copyright © 2017 Evgeny Aleksandrov. All rights reserved.
-
 import Foundation
 import AVFoundation
 import Cocoa
+import UserNotifications
 
 extension Notification.Name {
     static let radioPlayerTrackNameUpdated = Notification.Name("RadioPlayer.TrackName.Updated")
@@ -32,7 +28,7 @@ struct RadioPlayer {
             if let error = player.currentItem?.error {
                 let nsError = error as NSError
                 if nsError.code != -1005 && nsError.code != -1009 {
-                    showError("Playback error: \(error.localizedDescription)\nCode: \(nsError.code)\nDomain: \(nsError.domain)")
+                    postErrorNotification("Playback error: \(error.localizedDescription)")
                 }
             }
         }
@@ -49,13 +45,13 @@ struct RadioPlayer {
         Settings.lastPlayedChannelId = channel.id
 
         guard let playlist = channel.bestQualityPlaylist else {
-            showError("No playable stream found for \"\(channel.title)\"")
+            postErrorNotification("No playable stream found for \"\(channel.title)\"")
             return
         }
 
         resolveStreamURL(from: playlist.url) { streamURL in
             guard let streamURL = streamURL else {
-                showError("Could not resolve stream for \"\(channel.title)\"")
+                postErrorNotification("Could not resolve stream for \"\(channel.title)\"")
                 return
             }
 
@@ -65,7 +61,7 @@ struct RadioPlayer {
                 player.replaceCurrentItem(with: playerItem)
                 itemStatusToken = playerItem.observe(\.status) { item, _ in
                     if item.status == .failed, let error = item.error {
-                        showError("Failed to play \"\(channel.title)\": \(error.localizedDescription)")
+                        postErrorNotification("Failed to play \"\(channel.title)\": \(error.localizedDescription)")
                     }
                 }
                 player.play()
@@ -89,14 +85,14 @@ struct RadioPlayer {
         }
     }
 
-    static func showError(_ message: String) {
+    static func postErrorNotification(_ message: String) {
+        guard Settings.errorNotificationsEnabled else { return }
         DispatchQueue.main.async {
-            let alert = NSAlert()
-            alert.messageText = "Playback Error"
-            alert.informativeText = message
-            alert.alertStyle = .warning
-            alert.addButton(withTitle: "OK")
-            alert.runModal()
+            let content = UNMutableNotificationContent()
+            content.title = "SomaFM miniplayer"
+            content.body = message
+            let request = UNNotificationRequest(identifier: "error-\(UUID().uuidString)", content: content, trigger: nil)
+            UNUserNotificationCenter.current().add(request)
         }
     }
 
@@ -120,8 +116,7 @@ struct RadioPlayer {
         guard !channelId.isEmpty else { return }
         guard let url = URL(string: "https://api.somafm.com/songs/\(channelId).json") else { return }
 
-        let session = URLSession(configuration: .default)
-        session.dataTask(with: url) { data, _, error in
+        URLSession.shared.dataTask(with: url) { data, _, error in
             guard let data = data, error == nil else { return }
 
             struct SongList: Decodable {
@@ -147,44 +142,34 @@ struct RadioPlayer {
     // MARK: - Private
 
     private static func resolveStreamURL(from plsURL: URL, completion: @escaping (URL?) -> Void) {
-        let session = URLSession(configuration: .default)
         var request = URLRequest(url: plsURL)
         request.timeoutInterval = 10
 
-        session.dataTask(with: request) { data, response, error in
+        URLSession.shared.dataTask(with: request) { data, response, error in
             if let error = error {
-                DispatchQueue.main.async {
-                    showError("PLS fetch failed: \(error.localizedDescription)\nURL: \(plsURL)")
-                }
+                postErrorNotification("PLS fetch failed: \(error.localizedDescription)")
                 completion(nil)
                 return
             }
 
             guard let httpResponse = response as? HTTPURLResponse else {
-                DispatchQueue.main.async {
-                    showError("PLS fetch: invalid response for \(plsURL)")
-                }
+                postErrorNotification("PLS fetch: invalid response")
                 completion(nil)
                 return
             }
 
             guard (200...299).contains(httpResponse.statusCode) else {
-                DispatchQueue.main.async {
-                    showError("PLS fetch: HTTP \(httpResponse.statusCode) for \(plsURL)")
-                }
+                postErrorNotification("PLS fetch: HTTP \(httpResponse.statusCode)")
                 completion(nil)
                 return
             }
 
             guard let data = data, let content = String(data: data, encoding: .utf8) else {
-                DispatchQueue.main.async {
-                    showError("PLS fetch: no data for \(plsURL)")
-                }
+                postErrorNotification("PLS fetch: no data")
                 completion(nil)
                 return
             }
 
-            // Parse .pls file for first File entry
             let lines = content.components(separatedBy: .newlines)
             for line in lines {
                 if line.lowercased().hasPrefix("file1=") {
@@ -192,24 +177,20 @@ struct RadioPlayer {
                     if let streamURL = URL(string: urlString) {
                         completion(streamURL)
                     } else {
-                        DispatchQueue.main.async {
-                            showError("PLS parse: invalid URL '\(urlString)'")
-                        }
+                        postErrorNotification("PLS parse: invalid URL '\(urlString)'")
                         completion(nil)
                     }
                     return
                 }
             }
 
-            DispatchQueue.main.async {
-                showError("PLS parse: no File1 entry found in:\n\(content.prefix(200))")
-            }
+            postErrorNotification("PLS parse: no File1 entry found")
             completion(nil)
         }.resume()
     }
 
     private static func makePlayerItem(url: URL) -> AVPlayerItem {
-        let headers = ["User-Agent": "SomaFM/2.0.0 (macOS)"]
+        let headers = ["User-Agent": "SomaFMminiplayer/2.0.1 (macOS)"]
         let asset = AVURLAsset(url: url, options: ["AVURLAssetHTTPHeaderFieldsKey": headers])
         let item = AVPlayerItem(asset: asset)
         item.preferredForwardBufferDuration = 5

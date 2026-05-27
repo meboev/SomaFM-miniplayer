@@ -1,14 +1,12 @@
 //
 //  SomaAPI.swift
 //
-//  Copyright © 2017 Evgeny Aleksandrov. All rights reserved.
+//  Copyright © 2026 Milen Boev. All rights reserved.
 
 import Foundation
-import Cocoa
 
 public extension Notification.Name {
     static let somaApiChannelsUpdated = Notification.Name("SomaAPI.Channels.Updated")
-    static let somaApiError = Notification.Name("SomaAPI.Error")
 }
 
 public struct SomaAPI {
@@ -26,17 +24,6 @@ public struct SomaAPI {
     static func loadChannels() {
         getChannelsFromDisk()
         loadChannelsFromAPI()
-    }
-
-    static func showError(_ message: String) {
-        DispatchQueue.main.async {
-            let alert = NSAlert()
-            alert.messageText = "SomaFM Error"
-            alert.informativeText = message
-            alert.alertStyle = .warning
-            alert.addButton(withTitle: "OK")
-            alert.runModal()
-        }
     }
 }
 
@@ -57,27 +44,26 @@ private extension SomaAPI {
             return
         }
 
-        let session = URLSession(configuration: URLSessionConfiguration.default)
         let request = URLRequest(url: channelsURL)
 
-        session.dataTask(with: request) { data, response, error in
+        URLSession.shared.dataTask(with: request) { data, response, error in
             if let error = error {
-                showError("Failed to load channels: \(error.localizedDescription)")
+                RadioPlayer.postErrorNotification("Failed to load channels: \(error.localizedDescription)")
                 return
             }
 
             guard let httpResponse = response as? HTTPURLResponse else {
-                showError("Invalid response from SomaFM API")
+                RadioPlayer.postErrorNotification("Invalid response from SomaFM API")
                 return
             }
 
             guard (200...299).contains(httpResponse.statusCode) else {
-                showError("SomaFM API returned status \(httpResponse.statusCode)")
+                RadioPlayer.postErrorNotification("SomaFM API returned status \(httpResponse.statusCode)")
                 return
             }
 
             guard let data = data else {
-                showError("No data received from SomaFM API")
+                RadioPlayer.postErrorNotification("No data received from SomaFM API")
                 return
             }
 
@@ -86,7 +72,7 @@ private extension SomaAPI {
                 self.channels = channelList.channels
                 SomaAPI.saveChannelsToDisk()
             } catch {
-                showError("Failed to parse channels: \(error.localizedDescription)")
+                RadioPlayer.postErrorNotification("Failed to parse channels: \(error.localizedDescription)")
             }
         }.resume()
     }
@@ -109,7 +95,7 @@ private extension SomaAPI {
             try data.write(to: url, options: [])
             Settings.cacheTimestamp = Date()
         } catch {
-            print("SomaAPI: Error saving channels to disk")
+            Log.warning("SomaAPI: Error saving channels to disk")
         }
     }
 
@@ -121,7 +107,7 @@ private extension SomaAPI {
             let channelsToLoad = try JSONDecoder().decode([Channel].self, from: data)
             self.channels = channelsToLoad
         } catch {
-            print("SomaAPI: Error loading channels from disk")
+            Log.warning("SomaAPI: Error loading channels from disk")
         }
     }
 }

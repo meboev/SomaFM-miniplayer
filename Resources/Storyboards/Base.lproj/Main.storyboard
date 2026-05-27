@@ -76,7 +76,7 @@
                 <windowController storyboardIdentifier="PreferencesWindow" id="B8D-0N-5wS" sceneMemberID="viewController">
                     <window key="window" title="Preferences" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" oneShot="NO" releasedWhenClosed="NO" showsToolbarButton="NO" visibleAtLaunch="NO" animationBehavior="default" id="IQv-IB-iLA">
                         <windowStyleMask key="styleMask" titled="YES" closable="YES"/>
-                        <rect key="contentRect" x="325" y="661" width="400" height="380"/>
+                        <rect key="contentRect" x="325" y="661" width="400" height="560"/>
                         <rect key="screenRect" x="0.0" y="0.0" width="1680" height="1027"/>
                         <connections>
                             <outlet property="delegate" destination="B8D-0N-5wS" id="98r-iN-zZc"/>
@@ -95,7 +95,7 @@
             <objects>
                 <viewController id="XfG-lQ-9wD" customClass="PreferencesViewController" customModule="SomaFM_miniplayer" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" wantsLayer="YES" id="m2S-Jp-Qdl">
-                        <rect key="frame" x="0.0" y="0.0" width="400" height="380"/>
+                        <rect key="frame" x="0.0" y="0.0" width="400" height="560"/>
                         <autoresizingMask key="autoresizingMask"/>
                         <subviews>
                             <button translatesAutoresizingMaskIntoConstraints="NO" id="SI3-e1-D9B">
@@ -135,8 +135,8 @@
                                 </textFieldCell>
                             </textField>
                             <button translatesAutoresizingMaskIntoConstraints="NO" id="n0g-yw-ZC2">
-                                <rect key="frame" x="18" y="192" width="141" height="18"/>
-                                <buttonCell key="cell" type="check" title="Enable notifications" bezelStyle="regularSquare" imagePosition="left" inset="2" id="pLL-kZ-Loi">
+                                <rect key="frame" x="18" y="247" width="141" height="18"/>
+                                <buttonCell key="cell" type="check" title="Track notifications" bezelStyle="regularSquare" imagePosition="left" inset="2" id="pLL-kZ-Loi">
                                     <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                                     <font key="font" metaFont="system"/>
                                 </buttonCell>
@@ -145,13 +145,123 @@
                                 </connections>
                             </button>
                             <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="mi1-Y2-4N3">
-                                <rect key="frame" x="18" y="173" width="268" height="16"/>
-                                <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Shows system notifications with tracks names." id="uNf-yT-8Mq">
+                                <rect key="frame" x="18" y="228" width="268" height="16"/>
+                                <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Shows system notifications with track names." id="uNf-yT-8Mq">
                                     <font key="font" metaFont="cellTitle"/>
                                     <color key="textColor" name="secondaryLabelColor" catalog="System" colorSpace="catalog"/>
                                     <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                                 </textFieldCell>
                             </textField>
+                            <button translatesAutoresizingMaskIntoConstraints="NO" id="err-NF-01a">
+                                <rect key="frame" x="18" y="192" width="141" height="18"/>
+                                <buttonCell key="cell" type="check" title="Error notifications" bezelStyle="regularSquare" imagePosition="left" inset="2" id="err-NF-02a">
+                                    <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
+                                    <font key="font" metaFont="system"/>
+                                </buttonCell>
+                                <connections>
+                                    <binding destination="KYv-Wp-8ng" name="value" keyPath="values.RadioPlayer.ErrorNotificationsEnabled" id="err-NF-03a"/>
+                                </connections>
+                            </button>
+                            <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="err-NF-04a">
+                                <rect key="frame" x="18" y="173" width="268" height="16"/>
+                                <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Shows system notifications for connection errors." id="err-NF-05a">
+                                    <font key="font" metaFont="cellTitle"/>
+                                    <color key="textColor" name="secondaryLabelColor" catalog="System" colorSpace="catalog"/>
+                                    <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                                </textFieldCell>
+                            </textField>
+                            <button translatesAutoresizingMaskIntoConstraints="NO" id="mrq-CB-01a">
+                                <rect key="frame" x="18" y="137" width="180" height="18"/>
+                                <buttonCell key="cell" type="check" title="Show track in menu bar" bezelStyle="regularSquare" imagePosition="left" inset="2" id="mrq-CB-02a">
+                                    <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
+                                    <font key="font" metaFont="system"/>
+                                </buttonCell>
+                                <connections>
+                                    <binding destination="KYv-Wp-8ng" name="value" keyPath="values.RadioPlayer.ShowTrackInMenuBar" id="mrq-CB-03a"/>
+                                </connections>
+                            </button>
+                            <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="mrq-CB-04a">
+                                <rect key="frame" x="18" y="118" width="300" height="16"/>
+                                <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Scrolls current track name next to the menu bar icon." id="mrq-CB-05a">
+                                    <font key="font" metaFont="cellTitle"/>
+                                    <color key="textColor" name="secondaryLabelColor" catalog="System" colorSpace="catalog"/>
+                                    <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                                </textFieldCell>
+                            </textField>
+                            <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="mrq-WD-01a">
+                                <rect key="frame" x="18" y="98" width="80" height="17"/>
+                                <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Scroller width" id="mrq-WD-02a">
+                                    <font key="font" metaFont="system"/>
+                                    <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
+                                    <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                                </textFieldCell>
+                                <connections>
+                                    <binding destination="KYv-Wp-8ng" name="enabled" keyPath="values.RadioPlayer.ShowTrackInMenuBar" id="mrq-WD-16a"/>
+                                </connections>
+                            </textField>
+                            <slider horizontalHuggingPriority="750" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="mrq-WD-03a">
+                                <rect key="frame" x="100" y="95" width="220" height="21"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="220" id="mrq-WD-09a"/>
+                                </constraints>
+                                <sliderCell key="cell" continuous="YES" state="on" alignment="left" minValue="50" maxValue="400" doubleValue="50" tickMarkPosition="above" numberOfTickMarks="8" allowsTickMarkValuesOnly="YES" sliderType="linear" id="mrq-WD-04a"/>
+                                <connections>
+                                    <binding destination="KYv-Wp-8ng" name="value" keyPath="values.RadioPlayer.MarqueeWidth" id="mrq-WD-05a"/>
+                                    <binding destination="KYv-Wp-8ng" name="enabled" keyPath="values.RadioPlayer.ShowTrackInMenuBar" id="mrq-WD-17a"/>
+                                </connections>
+                            </slider>
+                            <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="mrq-WD-06a">
+                                <rect key="frame" x="330" y="98" width="50" height="17"/>
+                                <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="100 px" alignment="right" id="mrq-WD-07a">
+                                    <font key="font" metaFont="system"/>
+                                    <color key="textColor" name="secondaryLabelColor" catalog="System" colorSpace="catalog"/>
+                                    <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                                </textFieldCell>
+                                <connections>
+                                    <binding destination="KYv-Wp-8ng" name="displayPatternValue1" keyPath="values.RadioPlayer.MarqueeWidth" id="mrq-WD-08a">
+                                        <dictionary key="options">
+                                            <string key="NSDisplayPattern">%{value1}@ px</string>
+                                        </dictionary>
+                                    </binding>
+                                </connections>
+                            </textField>
+                            <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="mrq-FR-01a">
+                                <rect key="frame" x="18" y="78" width="80" height="17"/>
+                                <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Scroller FPS" id="mrq-FR-02a">
+                                    <font key="font" metaFont="system"/>
+                                    <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
+                                    <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                                </textFieldCell>
+                                <connections>
+                                    <binding destination="KYv-Wp-8ng" name="enabled" keyPath="values.RadioPlayer.ShowTrackInMenuBar" id="mrq-FR-10a"/>
+                                </connections>
+                            </textField>
+                            <popUpButton verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="mrq-FR-03a">
+                                <rect key="frame" x="248" y="73" width="135" height="26"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" relation="greaterThanOrEqual" constant="80" id="mrq-FR-09a"/>
+                                </constraints>
+                                <popUpButtonCell key="cell" type="push" title="60" bezelStyle="rounded" alignment="left" lineBreakMode="truncatingTail" state="on" borderStyle="borderAndBezel" imageScaling="proportionallyDown" inset="2" selectedItem="mrq-FR-MI6" id="mrq-FR-04a">
+                                    <behavior key="behavior" lightByBackground="YES" lightByGray="YES"/>
+                                    <font key="font" metaFont="menu"/>
+                                    <menu key="menu" id="mrq-FR-05a">
+                                        <items>
+                                            <menuItem title="5" tag="5" id="mrq-FR-MI0"/>
+                                            <menuItem title="10" tag="10" id="mrq-FR-MI1"/>
+                                            <menuItem title="15" tag="15" id="mrq-FR-MI2"/>
+                                            <menuItem title="20" tag="20" id="mrq-FR-MI3"/>
+                                            <menuItem title="30" tag="30" id="mrq-FR-MI4"/>
+                                            <menuItem title="40" tag="40" id="mrq-FR-MI5"/>
+                                            <menuItem title="50" tag="50" id="mrq-FR-MI7"/>
+                                            <menuItem title="60" tag="60" state="on" id="mrq-FR-MI6"/>
+                                        </items>
+                                    </menu>
+                                </popUpButtonCell>
+                                <connections>
+                                    <action selector="updateFrameRate:" target="XfG-lQ-9wD" id="mrq-FR-06a"/>
+                                    <binding destination="KYv-Wp-8ng" name="enabled" keyPath="values.RadioPlayer.ShowTrackInMenuBar" id="mrq-FR-11a"/>
+                                </connections>
+                            </popUpButton>
                             <box verticalHuggingPriority="750" boxType="separator" translatesAutoresizingMaskIntoConstraints="NO" id="ADb-RQ-2cx">
                                 <rect key="frame" x="20" y="150" width="360" height="5"/>
                             </box>
@@ -189,7 +299,7 @@
                             </box>
                             <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="msp-LB-01a">
                                 <rect key="frame" x="18" y="62" width="125" height="17"/>
-                                <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Music search provider" id="msp-LB-02a">
+                                <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Track search provider" id="msp-LB-02a">
                                     <font key="font" metaFont="system"/>
                                     <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
                                     <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
@@ -266,7 +376,17 @@
                             <constraint firstAttribute="trailing" relation="greaterThanOrEqual" secondItem="LfQ-DL-gam" secondAttribute="trailing" constant="20" id="44E-dd-4xN"/>
                             <constraint firstAttribute="trailing" secondItem="ep3-JP-TPh" secondAttribute="trailing" constant="20" id="4Ta-Vs-f18"/>
                             <constraint firstItem="SI3-e1-D9B" firstAttribute="top" secondItem="m2S-Jp-Qdl" secondAttribute="top" constant="20" id="4fX-fA-6uC"/>
-                            <constraint firstItem="ADb-RQ-2cx" firstAttribute="top" secondItem="mi1-Y2-4N3" secondAttribute="bottom" constant="20" id="5qL-MB-DN4"/>
+                            <constraint firstItem="ADb-RQ-2cx" firstAttribute="top" secondItem="mrq-FR-03a" secondAttribute="bottom" constant="20" id="5qL-MB-DN4"/>
+                            <constraint firstItem="mrq-WD-01a" firstAttribute="top" secondItem="mrq-CB-04a" secondAttribute="bottom" constant="10" id="mrq-WD-10a"/>
+                            <constraint firstItem="mrq-WD-01a" firstAttribute="leading" secondItem="SI3-e1-D9B" secondAttribute="leading" id="mrq-WD-11a"/>
+                            <constraint firstItem="mrq-WD-01a" firstAttribute="centerY" secondItem="mrq-WD-03a" secondAttribute="centerY" id="mrq-WD-12a"/>
+                            <constraint firstItem="mrq-WD-03a" firstAttribute="leading" secondItem="mrq-WD-01a" secondAttribute="trailing" constant="8" id="mrq-WD-13a"/>
+                            <constraint firstItem="mrq-WD-06a" firstAttribute="leading" secondItem="mrq-WD-03a" secondAttribute="trailing" constant="8" id="mrq-WD-14a"/>
+                            <constraint firstItem="mrq-WD-06a" firstAttribute="centerY" secondItem="mrq-WD-03a" secondAttribute="centerY" id="mrq-WD-15a"/>
+                            <constraint firstItem="mrq-FR-01a" firstAttribute="top" secondItem="mrq-WD-03a" secondAttribute="bottom" constant="10" id="mrq-FR-20a"/>
+                            <constraint firstItem="mrq-FR-01a" firstAttribute="leading" secondItem="SI3-e1-D9B" secondAttribute="leading" id="mrq-FR-21a"/>
+                            <constraint firstItem="mrq-FR-01a" firstAttribute="centerY" secondItem="mrq-FR-03a" secondAttribute="centerY" id="mrq-FR-22a"/>
+                            <constraint firstAttribute="trailing" secondItem="mrq-FR-03a" secondAttribute="trailing" constant="20" id="mrq-FR-23a"/>
                             <constraint firstItem="ep3-JP-TPh" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="cIX-7v-fyZ" secondAttribute="trailing" constant="20" id="8J8-JC-vas"/>
                             <constraint firstAttribute="trailing" relation="greaterThanOrEqual" secondItem="SI3-e1-D9B" secondAttribute="trailing" constant="20" id="8QD-hb-vby"/>
                             <constraint firstAttribute="trailing" secondItem="ovd-bD-YWD" secondAttribute="trailing" constant="20" id="9Kd-HU-VcJ"/>
@@ -288,23 +408,30 @@
                             <constraint firstItem="msp-SP-01a" firstAttribute="leading" secondItem="m2S-Jp-Qdl" secondAttribute="leading" constant="20" id="msp-CT-07a"/>
                             <constraint firstAttribute="trailing" secondItem="msp-SP-01a" secondAttribute="trailing" constant="20" id="msp-CT-08a"/>
                             <constraint firstItem="dUi-8Y-F9m" firstAttribute="top" secondItem="msp-SP-01a" secondAttribute="bottom" constant="10" id="msp-CT-09a"/>
-                            <constraint firstItem="JtP-VU-YdH" firstAttribute="centerX" secondItem="m2S-Jp-Qdl" secondAttribute="centerX" id="TkZ-aN-UNH"/>
+                            <constraint firstItem="dUi-8Y-F9m" firstAttribute="centerX" secondItem="m2S-Jp-Qdl" secondAttribute="centerX" id="xLP-01-h8t"/>
                             <constraint firstItem="mi1-Y2-4N3" firstAttribute="top" secondItem="n0g-yw-ZC2" secondAttribute="bottom" constant="5" id="WPj-Bt-h9i"/>
+                            <constraint firstItem="err-NF-01a" firstAttribute="top" secondItem="mi1-Y2-4N3" secondAttribute="bottom" constant="20" id="err-CT-01a"/>
+                            <constraint firstItem="err-NF-01a" firstAttribute="leading" secondItem="SI3-e1-D9B" secondAttribute="leading" id="err-CT-02a"/>
+                            <constraint firstItem="err-NF-04a" firstAttribute="top" secondItem="err-NF-01a" secondAttribute="bottom" constant="5" id="err-CT-03a"/>
+                            <constraint firstItem="err-NF-04a" firstAttribute="leading" secondItem="SI3-e1-D9B" secondAttribute="leading" id="err-CT-04a"/>
+                            <constraint firstItem="mrq-CB-01a" firstAttribute="top" secondItem="err-NF-04a" secondAttribute="bottom" constant="20" id="mrq-CT-01a"/>
+                            <constraint firstItem="mrq-CB-01a" firstAttribute="leading" secondItem="SI3-e1-D9B" secondAttribute="leading" id="mrq-CT-02a"/>
+                            <constraint firstItem="mrq-CB-04a" firstAttribute="top" secondItem="mrq-CB-01a" secondAttribute="bottom" constant="5" id="mrq-CT-03a"/>
+                            <constraint firstItem="mrq-CB-04a" firstAttribute="leading" secondItem="SI3-e1-D9B" secondAttribute="leading" id="mrq-CT-04a"/>
                             <constraint firstItem="PmU-Zt-r8g" firstAttribute="top" secondItem="SI3-e1-D9B" secondAttribute="bottom" constant="5" id="Z2e-n7-sLt"/>
                             <constraint firstAttribute="trailing" relation="greaterThanOrEqual" secondItem="gVp-ND-Gdb" secondAttribute="trailing" constant="20" id="bcn-hC-7N9"/>
                             <constraint firstItem="LfQ-DL-gam" firstAttribute="top" secondItem="gVp-ND-Gdb" secondAttribute="bottom" constant="5" id="cxE-Dz-x6K"/>
-                            <constraint firstItem="JtP-VU-YdH" firstAttribute="top" secondItem="dUi-8Y-F9m" secondAttribute="bottom" constant="10" id="drv-fW-LRT"/>
                             <constraint firstItem="gVp-ND-Gdb" firstAttribute="top" secondItem="PmU-Zt-r8g" secondAttribute="bottom" constant="20" id="iVs-DQ-UeZ"/>
                             <constraint firstItem="ovd-bD-YWD" firstAttribute="leading" secondItem="m2S-Jp-Qdl" secondAttribute="leading" constant="20" id="jyC-5v-yyO"/>
                             <constraint firstItem="gVp-ND-Gdb" firstAttribute="leading" secondItem="SI3-e1-D9B" secondAttribute="leading" id="mEW-i0-bwv"/>
                             <constraint firstAttribute="trailing" relation="greaterThanOrEqual" secondItem="PmU-Zt-r8g" secondAttribute="trailing" constant="20" id="wCc-Ho-4y6"/>
-                            <constraint firstItem="dUi-8Y-F9m" firstAttribute="centerX" secondItem="m2S-Jp-Qdl" secondAttribute="centerX" id="xLP-01-h8t"/>
                             <constraint firstItem="cIX-7v-fyZ" firstAttribute="top" secondItem="ADb-RQ-2cx" secondAttribute="bottom" constant="20" id="yLC-K3-pVT"/>
                             <constraint firstItem="cIX-7v-fyZ" firstAttribute="centerY" secondItem="ep3-JP-TPh" secondAttribute="centerY" id="zBO-fG-p9T"/>
                             <constraint firstAttribute="trailing" relation="greaterThanOrEqual" secondItem="mi1-Y2-4N3" secondAttribute="trailing" constant="20" id="zTY-br-jmh"/>
                         </constraints>
                     </view>
                     <connections>
+                        <outlet property="frameRatePopup" destination="mrq-FR-03a" id="mrq-FR-30a"/>
                         <outlet property="startAtLoginButton" destination="SI3-e1-D9B" id="nPV-ty-UpR"/>
                         <outlet property="versionLabel" destination="YzI-gg-fg0" id="irq-2W-iPt"/>
                     </connections>

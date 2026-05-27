@@ -1,7 +1,7 @@
 //
 //  Channel.swift
 //
-//  Copyright © 2017 Evgeny Aleksandrov. All rights reserved.
+//  Copyright © 2026 Milen Boev. All rights reserved.
 
 import Foundation
 
@@ -22,16 +22,14 @@ public struct Channel: Codable {
     let playlists: [Playlist]
 
     var bestQualityPlaylist: Playlist? {
-        if let playlist = playlists.filter({ $0.quality == .highest && $0.format == .aac }).first {
+        if let playlist = playlists.first(where: { $0.quality == .highest && $0.format == .aac }) {
             return playlist
-        } else if let playlist = playlists.filter({ $0.quality == .highest }).first {
+        } else if let playlist = playlists.first(where: { $0.quality == .highest }) {
             return playlist
-        } else if let playlist = playlists.filter({ $0.quality == .high }).first {
-            return playlist
-        } else if let playlist = playlists.first {
+        } else if let playlist = playlists.first(where: { $0.quality == .high }) {
             return playlist
         } else {
-            return nil
+            return playlists.first
         }
     }
 
@@ -40,7 +38,7 @@ public struct Channel: Codable {
 
         self.id = try container.decode(String.self, forKey: .id)
         self.title = try container.decode(String.self, forKey: .title)
-        self.description = try? container.decode(String.self, forKey: .title)
+        self.description = try? container.decode(String.self, forKey: .description)
         self.dj = try? container.decode(String.self, forKey: .dj)
         self.genre = try? container.decode(String.self, forKey: .genre)
         self.image = try? container.decode(URL.self, forKey: .image)

@@ -1,7 +1,7 @@
 //
 //  HyperTextField.swift
 //
-//  Copyright © 2017 Evgeny Aleksandrov. All rights reserved.
+//  Copyright © 2026 Milen Boev. All rights reserved.
 
 import Cocoa
 
@@ -18,7 +18,7 @@ class HyperTextField: NSTextField {
         super.awakeFromNib()
 
         let attributes: [NSAttributedString.Key: Any] = [
-            .foregroundColor: NSColor.blue,
+            .foregroundColor: NSColor.linkColor,
             .underlineStyle: NSUnderlineStyle.single.rawValue
         ]
         self.attributedStringValue = NSAttributedString(string: self.stringValue, attributes: attributes)

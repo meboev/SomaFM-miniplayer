@@ -1,7 +1,7 @@
 //
 //  Playlist.swift
 //
-//  Copyright © 2017 Evgeny Aleksandrov. All rights reserved.
+//  Copyright © 2026 Milen Boev. All rights reserved.
 
 import Foundation
 

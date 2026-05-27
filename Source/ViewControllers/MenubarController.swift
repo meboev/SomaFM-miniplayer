@@ -1,14 +1,16 @@
 //
 //  MenubarController.swift
 //
-//  Copyright © 2017 Evgeny Aleksandrov. All rights reserved.
+//  Copyright © 2026 Milen Boev. All rights reserved.
 
 import Cocoa
 import Network
 import UserNotifications
+import MediaPlayer
 
-class MenubarController {
+class MenubarController: NSObject {
     let statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
+    private var marqueeMaxWidth: CGFloat { Settings.marqueeWidth }
 
     let rightClickMenu = NSMenu()
     let stationsMenu = NSMenu()
@@ -29,8 +31,15 @@ class MenubarController {
 
     private var hasAutoPlayed = false
     private var lastNotifiedTrack: String?
+    private var retryTimer: Timer?
+    private var marqueeTimer: Timer?
+    private var marqueePixelOffset: CGFloat = 0
+    private var marqueeTextWidth: CGFloat = 0
+    private let marqueePadding: CGFloat = 40
+    private var currentIcon: NSImage?
 
-    init() {
+    override init() {
+        super.init()
         setupStatusItem()
         setupMenu()
         setupReachability()
@@ -39,14 +48,48 @@ class MenubarController {
         NotificationCenter.default.addObserver(self, selector: #selector(MenubarController.updateTrackName), name: .radioPlayerTrackNameUpdated, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(MenubarController.updatePlaybackState), name: .radioPlayerStateUpdated, object: nil)
 
+        NSUserDefaultsController.shared.addObserver(self, forKeyPath: "values.\(UserDefaultsKey.showTrackInMenuBar)", options: .new, context: nil)
+        NSUserDefaultsController.shared.addObserver(self, forKeyPath: "values.\(UserDefaultsKey.marqueeWidth)", options: .new, context: nil)
+        NSUserDefaultsController.shared.addObserver(self, forKeyPath: "values.\(UserDefaultsKey.marqueeFrameRate)", options: .new, context: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(defaultsChanged), name: UserDefaults.didChangeNotification, object: nil)
+
         SomaAPI.loadChannels()
+    }
+
+    override func observeValue(forKeyPath keyPath: String?, of object: Any?, change: [NSKeyValueChangeKey: Any]?, context: UnsafeMutableRawPointer?) {
+        if keyPath == "values.\(UserDefaultsKey.showTrackInMenuBar)" || keyPath == "values.\(UserDefaultsKey.marqueeWidth)" || keyPath == "values.\(UserDefaultsKey.marqueeFrameRate)" {
+            handleShowTrackChanged()
+        }
+    }
+
+    private var lastShowTrackValue = Settings.showTrackInMenuBar
+    private var lastMarqueeWidth = Settings.marqueeWidth
+    private var lastMarqueeFrameRate = Settings.marqueeFrameRate
+
+    @objc private func defaultsChanged() {
+        let currentShow = Settings.showTrackInMenuBar
+        let currentWidth = Settings.marqueeWidth
+        let currentFps = Settings.marqueeFrameRate
+        if currentShow != lastShowTrackValue || currentWidth != lastMarqueeWidth || currentFps != lastMarqueeFrameRate {
+            lastShowTrackValue = currentShow
+            lastMarqueeWidth = currentWidth
+            lastMarqueeFrameRate = currentFps
+            handleShowTrackChanged()
+        }
+    }
+
+    private func handleShowTrackChanged() {
+        stopMarquee()
+        updateStatusIcon()
+        updateMarquee()
     }
 
     @objc func channelsUpdated() {
         updateStationsMenu()
         if !hasAutoPlayed && Settings.shouldPlayOnLaunch {
             hasAutoPlayed = true
-            togglePlay()
+            Settings.playMode = true
+            startPlaying()
         }
     }
 
@@ -55,7 +98,7 @@ class MenubarController {
         statusItem.button?.action = #selector(MenubarController.toggleStatus(_:))
         statusItem.button?.sendAction(on: [.leftMouseUp, .rightMouseUp])
 
-        setStatusItem(playing: false)
+        updateStatusIcon()
     }
 
     func setupMenu() {
@@ -113,9 +156,14 @@ class MenubarController {
         let lastPlayedChannel = SomaAPI.lastPlayedChannel
 
         for channel in sortedChannels {
-            let channelItem = NSMenuItem(title: channel.title, action: #selector(MenubarController.selectStation(_:)), keyEquivalent: "")
+            let listenersStr = " (\(channel.listeners))"
+            let channelItem = NSMenuItem(title: channel.title + listenersStr, action: #selector(MenubarController.selectStation(_:)), keyEquivalent: "")
             channelItem.tag = channels.firstIndex(where: { $0.id == channel.id }) ?? 0
             channelItem.target = self
+
+            if let genre = channel.genre ?? channel.description {
+                channelItem.toolTip = genre
+            }
 
             if channel.id == lastPlayedChannel?.id {
                 channelItem.state = .on
@@ -163,13 +211,17 @@ class MenubarController {
                 showUserNotification()
             }
             MusicSearchAPI.searchTrack()
+            updateNowPlayingInfo()
+            updateMarquee()
         }
     }
 
     @objc func updatePlaybackState() {
-        setupRecoveringTimerIfNeeded()
-        setStatusItem(playing: RadioPlayer.player.timeControlStatus != .paused)
+        updateStatusIcon()
         updateTrackName()
+        updateNowPlayingInfo()
+        updateMarquee()
+        startRetryTimerIfNeeded()
     }
 
     @objc func selectStation(_ sender: NSMenuItem) {
@@ -197,21 +249,17 @@ class MenubarController {
     }
 
     @objc func togglePlay() {
-        if RadioPlayer.player.timeControlStatus != .paused {
+        if Settings.playMode {
+            // Currently in play mode -> switch to stopped
+            Settings.playMode = false
             RadioPlayer.player.pause()
-            return
+            stopRetryTimer()
+        } else {
+            // Switch to play mode
+            Settings.playMode = true
+            startPlaying()
         }
-
-        guard isNetworkAvailable else {
-            showConnectionError()
-            return
-        }
-
-        if RadioPlayer.player.currentItem != nil {
-            RadioPlayer.resumeLive()
-        } else if let savedChannel = SomaAPI.lastPlayedChannel {
-            selectChannel(savedChannel)
-        }
+        updateStatusIcon()
     }
 
     @objc func previousTap() {
@@ -235,10 +283,8 @@ class MenubarController {
     }
 
     @objc func searchTrack() {
-        // Re-search with current provider in case it changed
         MusicSearchAPI.searchTrack()
 
-        // For YouTube Music and Spotify the URL is set synchronously
         if let trackURL = MusicSearchAPI.trackSearchURL {
             NSWorkspace.shared.open(trackURL)
         }
@@ -246,14 +292,36 @@ class MenubarController {
 
     // MARK: - Private
 
+    private func startPlaying() {
+        guard isNetworkAvailable else {
+            // Will retry via timer
+            updateStatusIcon()
+            startRetryTimerIfNeeded()
+            return
+        }
+
+        if RadioPlayer.player.currentItem != nil {
+            RadioPlayer.resumeLive()
+        } else if let savedChannel = SomaAPI.lastPlayedChannel {
+            selectChannel(savedChannel)
+        }
+    }
+
     private func selectChannel(_ channel: Channel) {
         guard let channels = SomaAPI.channels, let selectedChannelIdx = channels.firstIndex(where: { $0.id == channel.id }) else { return }
+
+        // Selecting a channel implies play mode
+        Settings.playMode = true
+
         guard isNetworkAvailable else {
-            showConnectionError()
+            updateStatusIcon()
+            startRetryTimerIfNeeded()
             return
         }
 
         lastNotifiedTrack = nil
+        cachedArtwork = nil
+        cachedArtworkChannelId = nil
         stationsMenu.items.forEach { $0.state = $0.tag == selectedChannelIdx ? .on : .off }
 
         RadioPlayer.play(channel: channel)
@@ -266,13 +334,113 @@ class MenubarController {
         statusItem.menu = nil
     }
 
-    private func setStatusItem(playing: Bool) {
-        if playing {
-            statusItem.button?.image = NSImage(named: NSImage.Name("media_pause"))
-            statusItem.button?.toolTip = "Click to pause\nRight click to show menu"
+    // MARK: - Status Icon (colored)
+
+    private func updateStatusIcon() {
+        let isPlaying = RadioPlayer.player.timeControlStatus == .playing
+        let isDark = (statusItem.button?.effectiveAppearance.bestMatch(from: [.darkAqua, .aqua]) == .darkAqua)
+
+        if !Settings.playMode {
+            currentIcon = tintedImage(named: "media_play", color: NSColor(red: 0.906, green: 0.188, blue: 0.153, alpha: 1.0))
+        } else if isPlaying {
+            let green = isDark
+                ? NSColor(red: 0.298, green: 0.851, blue: 0.392, alpha: 1.0)
+                : NSColor(red: 0.133, green: 0.545, blue: 0.133, alpha: 1.0)
+            currentIcon = tintedImage(named: "media_pause", color: green)
         } else {
-            statusItem.button?.image = NSImage(named: NSImage.Name("media_play"))
-            statusItem.button?.toolTip = "Click to play\nRight click to show menu"
+            let amber = isDark
+                ? NSColor(red: 0.945, green: 0.769, blue: 0.059, alpha: 1.0)
+                : NSColor(red: 0.750, green: 0.580, blue: 0.000, alpha: 1.0)
+            currentIcon = tintedImage(named: "media_pause", color: amber)
+        }
+
+        statusItem.button?.image = currentIcon
+        statusItem.button?.toolTip = buildTooltip()
+    }
+
+    private func buildTooltip() -> String {
+        let version = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? ""
+        var parts = ["SomaFM miniplayer v\(version)"]
+
+        if let channel = SomaAPI.lastPlayedChannel {
+            var channelParts = [channel.title]
+            if let desc = channel.description ?? channel.genre {
+                channelParts.append(desc)
+            }
+            parts.append(channelParts.joined(separator: "\n"))
+        }
+
+        if let track = RadioPlayer.currentTrack, !track.isEmpty {
+            parts.append(track)
+        }
+
+        return parts.joined(separator: "\n\n")
+    }
+
+    private func tintedImage(named name: String, color: NSColor) -> NSImage? {
+        guard let original = NSImage(named: NSImage.Name(name)) else { return nil }
+        let image = NSImage(size: original.size, flipped: false) { rect in
+            original.draw(in: rect)
+            color.set()
+            rect.fill(using: .sourceAtop)
+            return true
+        }
+        image.isTemplate = false
+        return image
+    }
+
+    private func updateNowPlayingInfo() {
+        let infoCenter = MPNowPlayingInfoCenter.default()
+
+        if !Settings.playMode || RadioPlayer.player.timeControlStatus == .paused {
+            infoCenter.playbackState = .paused
+            infoCenter.nowPlayingInfo = nil
+            return
+        }
+
+        var info = [String: Any]()
+        info[MPNowPlayingInfoPropertyMediaType] = MPNowPlayingInfoMediaType.audio.rawValue
+        info[MPNowPlayingInfoPropertyIsLiveStream] = true
+
+        if let trackName = RadioPlayer.currentTrack {
+            let parts = trackName.components(separatedBy: " - ")
+            if parts.count >= 2 {
+                info[MPMediaItemPropertyArtist] = parts[0]
+                info[MPMediaItemPropertyTitle] = parts.dropFirst().joined(separator: " - ")
+            } else {
+                info[MPMediaItemPropertyTitle] = trackName
+            }
+        }
+
+        if let stationName = SomaAPI.lastPlayedChannel?.title {
+            info[MPMediaItemPropertyAlbumTitle] = stationName
+        }
+
+        // Set artwork if cached
+        if let artwork = cachedArtwork {
+            info[MPMediaItemPropertyArtwork] = artwork
+        }
+
+        infoCenter.nowPlayingInfo = info
+        infoCenter.playbackState = .playing
+
+        // Fetch artwork if not cached
+        if cachedArtwork == nil, let channel = SomaAPI.lastPlayedChannel {
+            fetchArtwork(for: channel)
+        }
+    }
+
+    private var cachedArtwork: MPMediaItemArtwork?
+    private var cachedArtworkChannelId: String?
+
+    private func fetchArtwork(for channel: Channel) {
+        guard channel.id != cachedArtworkChannelId else { return }
+
+        ArtworkCache.fetchImage(for: channel) { [weak self] image in
+            guard let self = self, let image = image else { return }
+            self.cachedArtworkChannelId = channel.id
+            self.cachedArtwork = MPMediaItemArtwork(boundsSize: image.size) { _ in image }
+            self.updateNowPlayingInfo()
         }
     }
 
@@ -286,68 +454,197 @@ class MenubarController {
         let content = UNMutableNotificationContent()
         content.title = stationName
         content.body = trackName
-        let request = UNNotificationRequest(identifier: "nowPlaying", content: content, trigger: nil)
-        center.add(request)
+
+        // Attach station artwork if available
+        if let channel = SomaAPI.lastPlayedChannel {
+            attachArtwork(for: channel, to: content) {
+                let request = UNNotificationRequest(identifier: "nowPlaying", content: content, trigger: nil)
+                center.add(request)
+            }
+        } else {
+            let request = UNNotificationRequest(identifier: "nowPlaying", content: content, trigger: nil)
+            center.add(request)
+        }
+    }
+
+    private func attachArtwork(for channel: Channel, to content: UNMutableNotificationContent, completion: @escaping () -> Void) {
+        ArtworkCache.fetchImage(for: channel) { image in
+            if let image = image, let tiffData = image.tiffRepresentation {
+                let tempURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString + ".jpg")
+                if let bitmap = NSBitmapImageRep(data: tiffData),
+                   let jpegData = bitmap.representation(using: .jpeg, properties: [.compressionFactor: 0.8]) {
+                    try? jpegData.write(to: tempURL)
+                    if let attachment = try? UNNotificationAttachment(identifier: "artwork", url: tempURL, options: nil) {
+                        content.attachments = [attachment]
+                    }
+                }
+            }
+            completion()
+        }
     }
 
     // MARK: - Reachability (NWPathMonitor)
 
     private let pathMonitor = NWPathMonitor()
     private var isNetworkAvailable: Bool = true
-    private var resumePlaybackTimer: Timer?
 
     private func setupReachability() {
         pathMonitor.pathUpdateHandler = { [weak self] path in
             DispatchQueue.main.async {
-                let wasAvailable = self?.isNetworkAvailable ?? true
                 self?.isNetworkAvailable = (path.status == .satisfied)
 
                 if path.status == .satisfied {
                     self?.updateTrackName()
-                    self?.recoverFromConnectionErrorIfNeeded()
-                } else {
-                    if wasAvailable {
-                        self?.updateTrackName()
+                    // If in play mode and not playing, try to connect
+                    if Settings.playMode && RadioPlayer.player.timeControlStatus != .playing {
+                        self?.startPlaying()
                     }
+                } else {
+                    self?.updateTrackName()
+                    self?.updateStatusIcon()
+                    self?.startRetryTimerIfNeeded()
                 }
             }
         }
         pathMonitor.start(queue: DispatchQueue.global(qos: .utility))
     }
 
-    private func setupRecoveringTimerIfNeeded() {
-        guard !isNetworkAvailable, RadioPlayer.player.timeControlStatus == .waitingToPlayAtSpecifiedRate else { return }
+    // MARK: - Retry Timer
 
-        resumePlaybackTimer?.invalidate()
-        resumePlaybackTimer = Timer.scheduledTimer(timeInterval: 5,
-                                                   target: self,
-                                                   selector: #selector(MenubarController.showConnectionError),
-                                                   userInfo: nil,
-                                                   repeats: false)
-    }
-
-    private func recoverFromConnectionErrorIfNeeded() {
-        resumePlaybackTimer?.invalidate()
-        guard RadioPlayer.player.timeControlStatus != .paused else { return }
-
-        RadioPlayer.resumeLive()
-    }
-
-    @objc func showConnectionError() {
-        resumePlaybackTimer?.invalidate()
-        updateTrackName()
-
-        RadioPlayer.player.pause()
-        setStatusItem(playing: true)
-
-        let content = UNMutableNotificationContent()
-        content.title = "Network error"
-        content.body = "Can't connect to SomaFM.com"
-        let request = UNNotificationRequest(identifier: UUID().uuidString, content: content, trigger: nil)
-        UNUserNotificationCenter.current().add(request)
-
-        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-            self.setStatusItem(playing: false)
+    private func startRetryTimerIfNeeded() {
+        guard Settings.playMode, !isNetworkAvailable || RadioPlayer.player.timeControlStatus != .playing else {
+            stopRetryTimer()
+            return
         }
+
+        // Don't create duplicate timers
+        guard retryTimer == nil else { return }
+
+        retryTimer = Timer.scheduledTimer(withTimeInterval: 5, repeats: true) { [weak self] _ in
+            guard let self = self else { return }
+            if Settings.playMode {
+                if self.isNetworkAvailable {
+                    self.stopRetryTimer()
+                    self.startPlaying()
+                }
+                // If network still unavailable, keep retrying
+            } else {
+                self.stopRetryTimer()
+            }
+        }
+    }
+
+    private func stopRetryTimer() {
+        retryTimer?.invalidate()
+        retryTimer = nil
+    }
+
+    // MARK: - Marquee
+
+    private func updateMarquee() {
+        let iconWidth: CGFloat = 22
+        let fixedLength = iconWidth + marqueeMaxWidth + 8
+
+        guard Settings.showTrackInMenuBar else {
+            stopMarquee()
+            statusItem.button?.title = ""
+            statusItem.length = NSStatusItem.variableLength
+            statusItem.button?.image = currentIcon
+            return
+        }
+
+        // Keep fixed width whenever the setting is on
+        statusItem.length = fixedLength
+        statusItem.button?.title = ""
+
+        guard Settings.playMode,
+              RadioPlayer.player.timeControlStatus != .paused,
+              let track = RadioPlayer.currentTrack, !track.isEmpty else {
+            stopMarquee()
+            statusItem.button?.image = currentIcon
+            return
+        }
+
+        let attrs: [NSAttributedString.Key: Any] = [
+            .font: NSFont.menuBarFont(ofSize: 0)
+        ]
+        let textWidth = (track as NSString).size(withAttributes: attrs).width
+
+        if textWidth <= marqueeMaxWidth {
+            // Short enough — display static
+            stopMarquee()
+            statusItem.button?.image = currentIcon
+            statusItem.button?.title = " \(track)"
+        } else {
+            // Start pixel scrolling
+            marqueeTextWidth = textWidth
+
+            if marqueeTimer == nil {
+                marqueePixelOffset = 0
+                renderMarqueeFrame(track: track, attrs: attrs)
+                let fps = Double(Settings.marqueeFrameRate)
+                let interval = 1.0 / fps
+                let pixelsPerSecond: Double = 30.0
+                let step = CGFloat(pixelsPerSecond / fps)
+                marqueeTimer = Timer.scheduledTimer(withTimeInterval: interval, repeats: true) { [weak self] _ in
+                    guard let self = self,
+                          let track = RadioPlayer.currentTrack else {
+                        self?.stopMarquee()
+                        return
+                    }
+                    self.marqueePixelOffset += step
+                    let totalWidth = self.marqueeTextWidth + self.marqueePadding
+                    if self.marqueePixelOffset >= totalWidth {
+                        self.marqueePixelOffset = 0
+                    }
+                    self.renderMarqueeFrame(track: track, attrs: attrs)
+                }
+            }
+        }
+    }
+
+    private func renderMarqueeFrame(track: String, attrs: [NSAttributedString.Key: Any]) {
+        guard let icon = currentIcon else { return }
+        let height: CGFloat = 18
+        let clipWidth = marqueeMaxWidth
+        let totalWidth = marqueeTextWidth + marqueePadding
+
+        // Resolve text color based on menu bar appearance
+        let isDark = (statusItem.button?.effectiveAppearance.bestMatch(from: [.darkAqua, .aqua]) == .darkAqua)
+        let textColor: NSColor = isDark ? .white : .black
+
+        var drawAttrs = attrs
+        drawAttrs[.foregroundColor] = textColor
+
+        let iconWidth = icon.size.width
+        let combinedWidth = iconWidth + 4 + clipWidth
+        let combinedHeight = max(icon.size.height, height)
+        let offset = marqueePixelOffset
+        let str = track as NSString
+
+        let combinedImage = NSImage(size: NSSize(width: combinedWidth, height: combinedHeight), flipped: false) { rect in
+            // Draw icon
+            let iconY = (rect.height - icon.size.height) / 2
+            icon.draw(in: NSRect(x: 0, y: iconY, width: iconWidth, height: icon.size.height))
+
+            // Clip text area and draw scrolling text
+            let textX = iconWidth + 4
+            let textY = (rect.height - height) / 2
+            NSGraphicsContext.current?.saveGraphicsState()
+            NSBezierPath(rect: NSRect(x: textX, y: textY, width: clipWidth, height: height)).addClip()
+            str.draw(at: NSPoint(x: textX - offset, y: textY + 1), withAttributes: drawAttrs)
+            str.draw(at: NSPoint(x: textX - offset + totalWidth, y: textY + 1), withAttributes: drawAttrs)
+            NSGraphicsContext.current?.restoreGraphicsState()
+            return true
+        }
+        combinedImage.isTemplate = false
+        statusItem.button?.image = combinedImage
+    }
+
+    private func stopMarquee() {
+        marqueeTimer?.invalidate()
+        marqueeTimer = nil
+        marqueePixelOffset = 0
+        marqueeTextWidth = 0
     }
 }

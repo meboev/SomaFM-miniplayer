@@ -8,7 +8,6 @@
 
 /* Begin PBXBuildFile section */
 		55649B171FACEC410002006C /* MusicSearchAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 55649B161FACEC410002006C /* MusicSearchAPI.swift */; };
-		55649B191FACF0EF0002006C /* SearchResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = 55649B181FACF0EF0002006C /* SearchResult.swift */; };
 		55649B1B1FAD0CE10002006C /* HyperTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 55649B1A1FAD0CE10002006C /* HyperTextField.swift */; };
 		556877981F83E33800F6B866 /* MenubarController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 556877971F83E33800F6B866 /* MenubarController.swift */; };
 		5576EB301F9F65AA00F30FB9 /* StartAtLogin.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5576EB2F1F9F65AA00F30FB9 /* StartAtLogin.swift */; };
@@ -19,6 +18,7 @@
 		558AD6CF1F82BF69000013B1 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 558AD6C81F82BF34000013B1 /* Main.storyboard */; };
 		558AD6D11F82BF6F000013B1 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 558AD6C51F82BF2F000013B1 /* AppDelegate.swift */; };
 		558AD6D81F82C116000013B1 /* Log.swift in Sources */ = {isa = PBXBuildFile; fileRef = 558AD6D71F82C114000013B1 /* Log.swift */; };
+		AC000002000000000000001A /* ArtworkCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC000001000000000000001A /* ArtworkCache.swift */; };
 		558AD6D91F82C119000013B1 /* PreferencesViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 558AD6D51F82C114000013B1 /* PreferencesViewController.swift */; };
 		55B994D11F9E19EB0045844D /* String+Truncate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 55B994D01F9E19EB0045844D /* String+Truncate.swift */; };
 
@@ -54,7 +54,6 @@
 
 /* Begin PBXFileReference section */
 		55649B161FACEC410002006C /* MusicSearchAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MusicSearchAPI.swift; sourceTree = "<group>"; };
-		55649B181FACF0EF0002006C /* SearchResult.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchResult.swift; sourceTree = "<group>"; };
 		55649B1A1FAD0CE10002006C /* HyperTextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HyperTextField.swift; sourceTree = "<group>"; };
 		556877971F83E33800F6B866 /* MenubarController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenubarController.swift; sourceTree = "<group>"; };
 		5576EB2F1F9F65AA00F30FB9 /* StartAtLogin.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StartAtLogin.swift; sourceTree = "<group>"; };
@@ -71,6 +70,7 @@
 		558AD6CD1F82BF34000013B1 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		558AD6D51F82C114000013B1 /* PreferencesViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreferencesViewController.swift; sourceTree = "<group>"; };
 		558AD6D71F82C114000013B1 /* Log.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Log.swift; sourceTree = "<group>"; };
+		AC000001000000000000001A /* ArtworkCache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArtworkCache.swift; sourceTree = "<group>"; };
 		55B994D01F9E19EB0045844D /* String+Truncate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "String+Truncate.swift"; sourceTree = "<group>"; };
 
 		55DB7F371F82C488009C3E0E /* Channel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Channel.swift; sourceTree = "<group>"; };
@@ -184,6 +184,7 @@
 				55B994D01F9E19EB0045844D /* String+Truncate.swift */,
 				5576EB2F1F9F65AA00F30FB9 /* StartAtLogin.swift */,
 				55649B1A1FAD0CE10002006C /* HyperTextField.swift */,
+				AC000001000000000000001A /* ArtworkCache.swift */,
 			);
 			path = Utils;
 			sourceTree = "<group>";
@@ -203,7 +204,6 @@
 			children = (
 				55DB7F371F82C488009C3E0E /* Channel.swift */,
 				55DB7F391F82C552009C3E0E /* Playlist.swift */,
-				55649B181FACF0EF0002006C /* SearchResult.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -255,7 +255,7 @@
 			attributes = {
 				LastSwiftUpdateCheck = 0900;
 				LastUpgradeCheck = 0900;
-				ORGANIZATIONNAME = "Evgeny Aleksandrov";
+				ORGANIZATIONNAME = "Milen Boev";
 				TargetAttributes = {
 					558ABBE91F9F345700F2EAD6 = {
 						CreatedOnToolsVersion = 9.0;
@@ -332,7 +332,7 @@
 				558AD6D91F82C119000013B1 /* PreferencesViewController.swift in Sources */,
 				55DB7F381F82C488009C3E0E /* Channel.swift in Sources */,
 				558AD6D81F82C116000013B1 /* Log.swift in Sources */,
-				55649B191FACF0EF0002006C /* SearchResult.swift in Sources */,
+				AC000002000000000000001A /* ArtworkCache.swift in Sources */,
 				55649B1B1FAD0CE10002006C /* HyperTextField.swift in Sources */,
 				5576EB301F9F65AA00F30FB9 /* StartAtLogin.swift in Sources */,
 				55649B171FACEC410002006C /* MusicSearchAPI.swift in Sources */,
@@ -370,7 +370,7 @@
 				CODE_SIGN_ENTITLEMENTS = "SomaFM-helper/SomaFM_helper.entitlements";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				DEVELOPMENT_TEAM = 5567X9EQ9Q;
+				DEVELOPMENT_TEAM = "";
 				INFOPLIST_FILE = "SomaFM-helper/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = "com.milenboev.somafm-helper";
@@ -386,7 +386,7 @@
 				CODE_SIGN_ENTITLEMENTS = "SomaFM-helper/SomaFM_helper.entitlements";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				DEVELOPMENT_TEAM = 5567X9EQ9Q;
+				DEVELOPMENT_TEAM = "";
 				INFOPLIST_FILE = "SomaFM-helper/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = "com.milenboev.somafm-helper";
@@ -510,7 +510,7 @@
 				CODE_SIGN_ENTITLEMENTS = "Supporting-files/SomaFM.entitlements";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				DEVELOPMENT_TEAM = 5567X9EQ9Q;
+				DEVELOPMENT_TEAM = "";
 				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
 				INFOPLIST_FILE = "Supporting-files/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
@@ -528,7 +528,7 @@
 				CODE_SIGN_ENTITLEMENTS = "Supporting-files/SomaFM.entitlements";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				DEVELOPMENT_TEAM = 5567X9EQ9Q;
+				DEVELOPMENT_TEAM = "";
 				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
 				INFOPLIST_FILE = "Supporting-files/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";

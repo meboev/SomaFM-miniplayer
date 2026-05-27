@@ -1,7 +1,7 @@
 //
 //  PreferencesViewController.swift
 //
-//  Copyright © 2017 Evgeny Aleksandrov. All rights reserved.
+//  Copyright © 2026 Milen Boev. All rights reserved.
 
 import Cocoa
 
@@ -9,16 +9,21 @@ class PreferencesViewController: NSViewController {
 
     @IBOutlet weak var startAtLoginButton: NSButton!
     @IBOutlet weak var versionLabel: NSTextField!
+    @IBOutlet weak var frameRatePopup: NSPopUpButton!
 
     override func viewDidLoad() {
         super.viewDidLoad()
 
         startAtLoginButton.state = StartAtLogin.isEnabled ? .on : .off
+        frameRatePopup.selectItem(withTag: Settings.marqueeFrameRate)
 
-        if let shortVersionString: String = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String,
-            let buildVersionString: String = Bundle.main.infoDictionary?["CFBundleVersion"] as? String {
-            versionLabel.stringValue = "Version \(shortVersionString) (\(buildVersionString))"
+        if let shortVersionString: String = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String {
+            versionLabel.stringValue = "Version \(shortVersionString)"
         }
+    }
+
+    override func cancelOperation(_ sender: Any?) {
+        view.window?.close()
     }
 
     @IBAction func tapStartAtLogin(_ sender: NSButton) {
@@ -31,5 +36,10 @@ class PreferencesViewController: NSViewController {
 
     @IBAction func updateMusicProvider(_ sender: NSPopUpButton) {
         NotificationCenter.default.post(name: .radioPlayerTrackNameUpdated, object: nil)
+    }
+
+    @IBAction func updateFrameRate(_ sender: NSPopUpButton) {
+        guard let item = sender.selectedItem else { return }
+        Settings.marqueeFrameRate = item.tag
     }
 }

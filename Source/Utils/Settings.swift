@@ -1,7 +1,7 @@
 //
 //  Settings.swift
 //
-//  Copyright © 2017 Evgeny Aleksandrov. All rights reserved.
+//  Copyright © 2026 Milen Boev. All rights reserved.
 
 import Foundation
 
@@ -10,7 +10,12 @@ enum UserDefaultsKey {
     static let lastPlayedChannel = "RadioPlayer.Channel.LastPlayed"
     static let shouldPlayOnLaunch = "RadioPlayer.ShouldPlayOnLaunch"
     static let notificationsEnabled = "RadioPlayer.NotificationsEnabled"
+    static let errorNotificationsEnabled = "RadioPlayer.ErrorNotificationsEnabled"
     static let musicSearchProvider = "RadioPlayer.MusicSearchProvider"
+    static let playMode = "RadioPlayer.PlayMode"
+    static let showTrackInMenuBar = "RadioPlayer.ShowTrackInMenuBar"
+    static let marqueeWidth = "RadioPlayer.MarqueeWidth"
+    static let marqueeFrameRate = "RadioPlayer.MarqueeFrameRate"
     static let apiCacheTimestamp = "SomaAPI.Cache.Timestamp"
     static let apiChannelsSortOrder = "SomaAPI.Channels.SortOrder"
 }
@@ -98,6 +103,52 @@ struct Settings {
         }
         set {
             UserDefaults.standard.set(newValue.rawValue, forKey: UserDefaultsKey.musicSearchProvider)
+        }
+    }
+
+    static var errorNotificationsEnabled: Bool {
+        get {
+            return UserDefaults.standard.object(forKey: UserDefaultsKey.errorNotificationsEnabled) as? Bool ?? false
+        }
+        set {
+            UserDefaults.standard.set(newValue, forKey: UserDefaultsKey.errorNotificationsEnabled)
+        }
+    }
+
+    static var playMode: Bool {
+        get {
+            return UserDefaults.standard.object(forKey: UserDefaultsKey.playMode) as? Bool ?? true
+        }
+        set {
+            UserDefaults.standard.set(newValue, forKey: UserDefaultsKey.playMode)
+        }
+    }
+
+    static var showTrackInMenuBar: Bool {
+        get {
+            return UserDefaults.standard.object(forKey: UserDefaultsKey.showTrackInMenuBar) as? Bool ?? false
+        }
+        set {
+            UserDefaults.standard.set(newValue, forKey: UserDefaultsKey.showTrackInMenuBar)
+        }
+    }
+
+    static var marqueeWidth: CGFloat {
+        get {
+            let val = UserDefaults.standard.object(forKey: UserDefaultsKey.marqueeWidth) as? Double ?? 50
+            return CGFloat(val)
+        }
+        set {
+            UserDefaults.standard.set(Double(newValue), forKey: UserDefaultsKey.marqueeWidth)
+        }
+    }
+
+    static var marqueeFrameRate: Int {
+        get {
+            return UserDefaults.standard.object(forKey: UserDefaultsKey.marqueeFrameRate) as? Int ?? 60
+        }
+        set {
+            UserDefaults.standard.set(newValue, forKey: UserDefaultsKey.marqueeFrameRate)
         }
     }
 }

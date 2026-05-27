@@ -1,12 +1,15 @@
 //
 //  AppDelegate.swift
 //
-//  Copyright © 2017 Evgeny Aleksandrov. All rights reserved.
+//  Copyright © 2026 Milen Boev. All rights reserved.
 
 import Cocoa
+import os.log
 
-@NSApplicationMain
+@main
 final class AppDelegate: NSObject, NSApplicationDelegate {
+
+    private let logger = Logger(subsystem: "com.milenboev.somafm-helper", category: "launch")
 
     func applicationWillFinishLaunching(_ notification: Notification) {
         // Get helper bundle id
@@ -29,7 +32,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         NSWorkspace.shared.openApplication(at: mainAppBundleURL,
                                            configuration: NSWorkspace.OpenConfiguration()) { _, error in
             if let error = error {
-                print("SomaFM-helper: Failed to launch main app: \(error)")
+                self.logger.error("Failed to launch main app: \(error.localizedDescription)")
             }
             DispatchQueue.main.async {
                 NSApp.terminate(nil)
