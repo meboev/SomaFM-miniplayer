@@ -16,6 +16,10 @@ enum UserDefaultsKey {
     static let showTrackInMenuBar = "RadioPlayer.ShowTrackInMenuBar"
     static let marqueeWidth = "RadioPlayer.MarqueeWidth"
     static let marqueeFrameRate = "RadioPlayer.MarqueeFrameRate"
+    static let artworkEnabled = "RadioPlayer.ArtworkEnabled"
+    static let trackArtworkEnabled = "RadioPlayer.TrackArtworkEnabled"
+    static let preferredFormat = "RadioPlayer.PreferredFormat"
+    static let preferredQuality = "RadioPlayer.PreferredQuality"
     static let apiCacheTimestamp = "SomaAPI.Cache.Timestamp"
     static let apiChannelsSortOrder = "SomaAPI.Channels.SortOrder"
 }
@@ -149,6 +153,44 @@ struct Settings {
         }
         set {
             UserDefaults.standard.set(newValue, forKey: UserDefaultsKey.marqueeFrameRate)
+        }
+    }
+
+    static var artworkEnabled: Bool {
+        get {
+            return UserDefaults.standard.object(forKey: UserDefaultsKey.artworkEnabled) as? Bool ?? true
+        }
+        set {
+            UserDefaults.standard.set(newValue, forKey: UserDefaultsKey.artworkEnabled)
+        }
+    }
+
+    static var trackArtworkEnabled: Bool {
+        get {
+            return UserDefaults.standard.object(forKey: UserDefaultsKey.trackArtworkEnabled) as? Bool ?? true
+        }
+        set {
+            UserDefaults.standard.set(newValue, forKey: UserDefaultsKey.trackArtworkEnabled)
+        }
+    }
+
+    // 0 = AAC, 1 = MP3, 2 = Any
+    static var preferredFormat: Int {
+        get {
+            return UserDefaults.standard.object(forKey: UserDefaultsKey.preferredFormat) as? Int ?? 0
+        }
+        set {
+            UserDefaults.standard.set(newValue, forKey: UserDefaultsKey.preferredFormat)
+        }
+    }
+
+    // 0 = Highest, 1 = High, 2 = Low
+    static var preferredQuality: Int {
+        get {
+            return UserDefaults.standard.object(forKey: UserDefaultsKey.preferredQuality) as? Int ?? 0
+        }
+        set {
+            UserDefaults.standard.set(newValue, forKey: UserDefaultsKey.preferredQuality)
         }
     }
 }

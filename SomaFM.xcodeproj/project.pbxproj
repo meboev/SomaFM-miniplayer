@@ -19,6 +19,9 @@
 		558AD6D11F82BF6F000013B1 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 558AD6C51F82BF2F000013B1 /* AppDelegate.swift */; };
 		558AD6D81F82C116000013B1 /* Log.swift in Sources */ = {isa = PBXBuildFile; fileRef = 558AD6D71F82C114000013B1 /* Log.swift */; };
 		AC000002000000000000001A /* ArtworkCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC000001000000000000001A /* ArtworkCache.swift */; };
+		AC000002000000000000001B /* TrackArtworkFetcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC000001000000000000001B /* TrackArtworkFetcher.swift */; };
+		AC000002000000000000001C /* SessionStats.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC000001000000000000001C /* SessionStats.swift */; };
+		AC000002000000000000001D /* StatisticsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC000001000000000000001D /* StatisticsViewController.swift */; };
 		558AD6D91F82C119000013B1 /* PreferencesViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 558AD6D51F82C114000013B1 /* PreferencesViewController.swift */; };
 		55B994D11F9E19EB0045844D /* String+Truncate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 55B994D01F9E19EB0045844D /* String+Truncate.swift */; };
 
@@ -71,6 +74,9 @@
 		558AD6D51F82C114000013B1 /* PreferencesViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreferencesViewController.swift; sourceTree = "<group>"; };
 		558AD6D71F82C114000013B1 /* Log.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Log.swift; sourceTree = "<group>"; };
 		AC000001000000000000001A /* ArtworkCache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArtworkCache.swift; sourceTree = "<group>"; };
+		AC000001000000000000001B /* TrackArtworkFetcher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrackArtworkFetcher.swift; sourceTree = "<group>"; };
+		AC000001000000000000001C /* SessionStats.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionStats.swift; sourceTree = "<group>"; };
+		AC000001000000000000001D /* StatisticsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatisticsViewController.swift; sourceTree = "<group>"; };
 		55B994D01F9E19EB0045844D /* String+Truncate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "String+Truncate.swift"; sourceTree = "<group>"; };
 
 		55DB7F371F82C488009C3E0E /* Channel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Channel.swift; sourceTree = "<group>"; };
@@ -171,6 +177,7 @@
 			isa = PBXGroup;
 			children = (
 				558AD6D51F82C114000013B1 /* PreferencesViewController.swift */,
+				AC000001000000000000001D /* StatisticsViewController.swift */,
 				556877971F83E33800F6B866 /* MenubarController.swift */,
 			);
 			path = ViewControllers;
@@ -185,6 +192,8 @@
 				5576EB2F1F9F65AA00F30FB9 /* StartAtLogin.swift */,
 				55649B1A1FAD0CE10002006C /* HyperTextField.swift */,
 				AC000001000000000000001A /* ArtworkCache.swift */,
+				AC000001000000000000001B /* TrackArtworkFetcher.swift */,
+				AC000001000000000000001C /* SessionStats.swift */,
 			);
 			path = Utils;
 			sourceTree = "<group>";
@@ -333,6 +342,9 @@
 				55DB7F381F82C488009C3E0E /* Channel.swift in Sources */,
 				558AD6D81F82C116000013B1 /* Log.swift in Sources */,
 				AC000002000000000000001A /* ArtworkCache.swift in Sources */,
+				AC000002000000000000001B /* TrackArtworkFetcher.swift in Sources */,
+				AC000002000000000000001C /* SessionStats.swift in Sources */,
+				AC000002000000000000001D /* StatisticsViewController.swift in Sources */,
 				55649B1B1FAD0CE10002006C /* HyperTextField.swift in Sources */,
 				5576EB301F9F65AA00F30FB9 /* StartAtLogin.swift in Sources */,
 				55649B171FACEC410002006C /* MusicSearchAPI.swift in Sources */,

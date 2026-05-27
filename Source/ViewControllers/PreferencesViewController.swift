@@ -42,4 +42,21 @@ class PreferencesViewController: NSViewController {
         guard let item = sender.selectedItem else { return }
         Settings.marqueeFrameRate = item.tag
     }
+
+    @IBAction func updateStreamFormat(_ sender: NSPopUpButton) {
+        replayIfPlaying()
+    }
+
+    @IBAction func updateStreamQuality(_ sender: NSPopUpButton) {
+        replayIfPlaying()
+    }
+
+    private func replayIfPlaying() {
+        guard RadioPlayer.player.timeControlStatus == .playing else { return }
+        // Delay slightly so the binding writes the new value before we read it
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+            guard let channel = SomaAPI.lastPlayedChannel else { return }
+            RadioPlayer.play(channel: channel)
+        }
+    }
 }

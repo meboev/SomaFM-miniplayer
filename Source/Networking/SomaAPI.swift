@@ -25,6 +25,11 @@ public struct SomaAPI {
         getChannelsFromDisk()
         loadChannelsFromAPI()
     }
+
+    /// Refresh channels from API if cache is older than 3 minutes.
+    static func refreshIfStale() {
+        loadChannelsFromAPI()
+    }
 }
 
 private extension SomaAPI {
@@ -39,7 +44,7 @@ private extension SomaAPI {
     static func loadChannelsFromAPI() {
         if channels != nil,
             let cacheTimestamp = Settings.cacheTimestamp,
-            Date().timeIntervalSince(cacheTimestamp) < 3*60 {
+            Date().timeIntervalSince(cacheTimestamp) < 15 {
             // channels are still fresh, do not update
             return
         }
@@ -69,8 +74,10 @@ private extension SomaAPI {
 
             do {
                 let channelList = try JSONDecoder().decode(ChannelList.self, from: data)
-                self.channels = channelList.channels
-                SomaAPI.saveChannelsToDisk()
+                DispatchQueue.main.async {
+                    self.channels = channelList.channels
+                }
+                SomaAPI.saveChannelsToDisk(channelList.channels)
             } catch {
                 RadioPlayer.postErrorNotification("Failed to parse channels: \(error.localizedDescription)")
             }
@@ -86,8 +93,8 @@ private extension SomaAPI {
         return appDir.appendingPathComponent("somafm_channels.json")
     }
 
-    static func saveChannelsToDisk() {
-        guard let channelsToSave = self.channels,
+    static func saveChannelsToDisk(_ channelsToSave: [Channel]? = nil) {
+        guard let channelsToSave = channelsToSave ?? self.channels,
             let url = fileCacheURL() else { return }
 
         do {

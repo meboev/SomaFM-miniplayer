@@ -76,7 +76,7 @@
                 <windowController storyboardIdentifier="PreferencesWindow" id="B8D-0N-5wS" sceneMemberID="viewController">
                     <window key="window" title="Preferences" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" oneShot="NO" releasedWhenClosed="NO" showsToolbarButton="NO" visibleAtLaunch="NO" animationBehavior="default" id="IQv-IB-iLA">
                         <windowStyleMask key="styleMask" titled="YES" closable="YES"/>
-                        <rect key="contentRect" x="325" y="661" width="400" height="560"/>
+                        <rect key="contentRect" x="325" y="661" width="400" height="740"/>
                         <rect key="screenRect" x="0.0" y="0.0" width="1680" height="1027"/>
                         <connections>
                             <outlet property="delegate" destination="B8D-0N-5wS" id="98r-iN-zZc"/>
@@ -95,7 +95,7 @@
             <objects>
                 <viewController id="XfG-lQ-9wD" customClass="PreferencesViewController" customModule="SomaFM_miniplayer" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" wantsLayer="YES" id="m2S-Jp-Qdl">
-                        <rect key="frame" x="0.0" y="0.0" width="400" height="560"/>
+                        <rect key="frame" x="0.0" y="0.0" width="400" height="740"/>
                         <autoresizingMask key="autoresizingMask"/>
                         <subviews>
                             <button translatesAutoresizingMaskIntoConstraints="NO" id="SI3-e1-D9B">
@@ -170,6 +170,46 @@
                                     <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                                 </textFieldCell>
                             </textField>
+                            <button translatesAutoresizingMaskIntoConstraints="NO" id="art-EN-01a">
+                                <rect key="frame" x="18" y="160" width="120" height="18"/>
+                                <buttonCell key="cell" type="check" title="Show artwork" bezelStyle="regularSquare" imagePosition="left" inset="2" id="art-EN-02a">
+                                    <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
+                                    <font key="font" metaFont="system"/>
+                                </buttonCell>
+                                <connections>
+                                    <binding destination="KYv-Wp-8ng" name="value" keyPath="values.RadioPlayer.ArtworkEnabled" id="art-EN-03a"/>
+                                </connections>
+                            </button>
+                            <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="art-EN-04a">
+                                <rect key="frame" x="18" y="143" width="300" height="16"/>
+                                <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Shows artwork in notifications and Now Playing." id="art-EN-05a">
+                                    <font key="font" metaFont="cellTitle"/>
+                                    <color key="textColor" name="secondaryLabelColor" catalog="System" colorSpace="catalog"/>
+                                    <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                                </textFieldCell>
+                            </textField>
+                            <button translatesAutoresizingMaskIntoConstraints="NO" id="art-TR-01a">
+                                <rect key="frame" x="18" y="125" width="160" height="18"/>
+                                <buttonCell key="cell" type="check" title="Track artwork" bezelStyle="regularSquare" imagePosition="left" inset="2" id="art-TR-02a">
+                                    <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
+                                    <font key="font" metaFont="system"/>
+                                </buttonCell>
+                                <connections>
+                                    <binding destination="KYv-Wp-8ng" name="value" keyPath="values.RadioPlayer.TrackArtworkEnabled" id="art-TR-03a"/>
+                                    <binding destination="KYv-Wp-8ng" name="enabled" keyPath="values.RadioPlayer.ArtworkEnabled" id="art-TR-04a"/>
+                                </connections>
+                            </button>
+                            <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="art-TR-05a">
+                                <rect key="frame" x="18" y="108" width="300" height="16"/>
+                                <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Fetches track-specific album art from iTunes." id="art-TR-06a">
+                                    <font key="font" metaFont="cellTitle"/>
+                                    <color key="textColor" name="secondaryLabelColor" catalog="System" colorSpace="catalog"/>
+                                    <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                                </textFieldCell>
+                                <connections>
+                                    <binding destination="KYv-Wp-8ng" name="enabled" keyPath="values.RadioPlayer.ArtworkEnabled" id="art-TR-07a"/>
+                                </connections>
+                            </textField>
                             <button translatesAutoresizingMaskIntoConstraints="NO" id="mrq-CB-01a">
                                 <rect key="frame" x="18" y="137" width="180" height="18"/>
                                 <buttonCell key="cell" type="check" title="Show track in menu bar" bezelStyle="regularSquare" imagePosition="left" inset="2" id="mrq-CB-02a">
@@ -200,10 +240,7 @@
                                 </connections>
                             </textField>
                             <slider horizontalHuggingPriority="750" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="mrq-WD-03a">
-                                <rect key="frame" x="100" y="95" width="220" height="21"/>
-                                <constraints>
-                                    <constraint firstAttribute="width" constant="220" id="mrq-WD-09a"/>
-                                </constraints>
+                                <rect key="frame" x="100" y="95" width="180" height="21"/>
                                 <sliderCell key="cell" continuous="YES" state="on" alignment="left" minValue="50" maxValue="400" doubleValue="50" tickMarkPosition="above" numberOfTickMarks="8" allowsTickMarkValuesOnly="YES" sliderType="linear" id="mrq-WD-04a"/>
                                 <connections>
                                     <binding destination="KYv-Wp-8ng" name="value" keyPath="values.RadioPlayer.MarqueeWidth" id="mrq-WD-05a"/>
@@ -294,6 +331,64 @@
                                     <binding destination="KYv-Wp-8ng" name="selectedIndex" keyPath="values.SomaAPI.Channels.SortOrder" id="QLm-Eb-9tB"/>
                                 </connections>
                             </popUpButton>
+                            <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="stq-LB-01a">
+                                <rect key="frame" x="18" y="85" width="125" height="17"/>
+                                <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Stream format" id="stq-LB-02a">
+                                    <font key="font" metaFont="system"/>
+                                    <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
+                                    <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                                </textFieldCell>
+                            </textField>
+                            <popUpButton verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="stq-PB-01a">
+                                <rect key="frame" x="248" y="80" width="135" height="26"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" relation="greaterThanOrEqual" constant="130" id="stq-WC-01a"/>
+                                </constraints>
+                                <popUpButtonCell key="cell" type="push" title="AAC" bezelStyle="rounded" alignment="left" lineBreakMode="truncatingTail" state="on" borderStyle="borderAndBezel" imageScaling="proportionallyDown" inset="2" selectedItem="stq-MI-01a" id="stq-PC-01a">
+                                    <behavior key="behavior" lightByBackground="YES" lightByGray="YES"/>
+                                    <font key="font" metaFont="menu"/>
+                                    <menu key="menu" id="stq-MN-01a">
+                                         <items>
+                                            <menuItem title="Any" state="on" id="stq-MI-03a"/>
+                                            <menuItem title="AAC" id="stq-MI-01a"/>
+                                            <menuItem title="MP3" id="stq-MI-02a"/>
+                                        </items>
+                                    </menu>
+                                </popUpButtonCell>
+                                <connections>
+                                    <binding destination="KYv-Wp-8ng" name="selectedIndex" keyPath="values.RadioPlayer.PreferredFormat" id="stq-BD-01a"/>
+                                    <action selector="updateStreamFormat:" target="XfG-lQ-9wD" id="stq-AC-01a"/>
+                                </connections>
+                            </popUpButton>
+                            <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="stq-LB-03a">
+                                <rect key="frame" x="18" y="55" width="125" height="17"/>
+                                <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Stream quality" id="stq-LB-04a">
+                                    <font key="font" metaFont="system"/>
+                                    <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
+                                    <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                                </textFieldCell>
+                            </textField>
+                            <popUpButton verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="stq-PB-02a">
+                                <rect key="frame" x="248" y="50" width="135" height="26"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" relation="greaterThanOrEqual" constant="130" id="stq-WC-02a"/>
+                                </constraints>
+                                <popUpButtonCell key="cell" type="push" title="Highest" bezelStyle="rounded" alignment="left" lineBreakMode="truncatingTail" state="on" borderStyle="borderAndBezel" imageScaling="proportionallyDown" inset="2" selectedItem="stq-MI-04a" id="stq-PC-02a">
+                                    <behavior key="behavior" lightByBackground="YES" lightByGray="YES"/>
+                                    <font key="font" metaFont="menu"/>
+                                    <menu key="menu" id="stq-MN-02a">
+                                        <items>
+                                            <menuItem title="Highest" state="on" id="stq-MI-04a"/>
+                                            <menuItem title="High" id="stq-MI-05a"/>
+                                            <menuItem title="Low" id="stq-MI-06a"/>
+                                        </items>
+                                    </menu>
+                                </popUpButtonCell>
+                                <connections>
+                                    <binding destination="KYv-Wp-8ng" name="selectedIndex" keyPath="values.RadioPlayer.PreferredQuality" id="stq-BD-02a"/>
+                                    <action selector="updateStreamQuality:" target="XfG-lQ-9wD" id="stq-AC-02a"/>
+                                </connections>
+                            </popUpButton>
                             <box verticalHuggingPriority="750" boxType="separator" translatesAutoresizingMaskIntoConstraints="NO" id="ovd-bD-YWD">
                                 <rect key="frame" x="20" y="92" width="360" height="5"/>
                             </box>
@@ -378,13 +473,14 @@
                             <constraint firstItem="SI3-e1-D9B" firstAttribute="top" secondItem="m2S-Jp-Qdl" secondAttribute="top" constant="20" id="4fX-fA-6uC"/>
                             <constraint firstItem="ADb-RQ-2cx" firstAttribute="top" secondItem="mrq-FR-03a" secondAttribute="bottom" constant="20" id="5qL-MB-DN4"/>
                             <constraint firstItem="mrq-WD-01a" firstAttribute="top" secondItem="mrq-CB-04a" secondAttribute="bottom" constant="10" id="mrq-WD-10a"/>
-                            <constraint firstItem="mrq-WD-01a" firstAttribute="leading" secondItem="SI3-e1-D9B" secondAttribute="leading" id="mrq-WD-11a"/>
+                            <constraint firstItem="mrq-WD-01a" firstAttribute="leading" secondItem="SI3-e1-D9B" secondAttribute="leading" constant="18" id="mrq-WD-11a"/>
                             <constraint firstItem="mrq-WD-01a" firstAttribute="centerY" secondItem="mrq-WD-03a" secondAttribute="centerY" id="mrq-WD-12a"/>
                             <constraint firstItem="mrq-WD-03a" firstAttribute="leading" secondItem="mrq-WD-01a" secondAttribute="trailing" constant="8" id="mrq-WD-13a"/>
                             <constraint firstItem="mrq-WD-06a" firstAttribute="leading" secondItem="mrq-WD-03a" secondAttribute="trailing" constant="8" id="mrq-WD-14a"/>
+                            <constraint firstAttribute="trailing" secondItem="mrq-WD-06a" secondAttribute="trailing" constant="20" id="mrq-WD-18a"/>
                             <constraint firstItem="mrq-WD-06a" firstAttribute="centerY" secondItem="mrq-WD-03a" secondAttribute="centerY" id="mrq-WD-15a"/>
                             <constraint firstItem="mrq-FR-01a" firstAttribute="top" secondItem="mrq-WD-03a" secondAttribute="bottom" constant="10" id="mrq-FR-20a"/>
-                            <constraint firstItem="mrq-FR-01a" firstAttribute="leading" secondItem="SI3-e1-D9B" secondAttribute="leading" id="mrq-FR-21a"/>
+                            <constraint firstItem="mrq-FR-01a" firstAttribute="leading" secondItem="SI3-e1-D9B" secondAttribute="leading" constant="18" id="mrq-FR-21a"/>
                             <constraint firstItem="mrq-FR-01a" firstAttribute="centerY" secondItem="mrq-FR-03a" secondAttribute="centerY" id="mrq-FR-22a"/>
                             <constraint firstAttribute="trailing" secondItem="mrq-FR-03a" secondAttribute="trailing" constant="20" id="mrq-FR-23a"/>
                             <constraint firstItem="ep3-JP-TPh" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="cIX-7v-fyZ" secondAttribute="trailing" constant="20" id="8J8-JC-vas"/>
@@ -398,7 +494,17 @@
                             <constraint firstItem="LfQ-DL-gam" firstAttribute="leading" secondItem="SI3-e1-D9B" secondAttribute="leading" id="Mb6-hp-1KS"/>
                             <constraint firstItem="n0g-yw-ZC2" firstAttribute="leading" secondItem="SI3-e1-D9B" secondAttribute="leading" id="NzH-Vu-DXD"/>
                             <constraint firstItem="PmU-Zt-r8g" firstAttribute="leading" secondItem="SI3-e1-D9B" secondAttribute="leading" id="RIP-QP-r5w"/>
-                            <constraint firstItem="ovd-bD-YWD" firstAttribute="top" secondItem="cIX-7v-fyZ" secondAttribute="bottom" constant="20" id="Ro5-qQ-Yrb"/>
+                            <constraint firstItem="stq-LB-01a" firstAttribute="top" secondItem="cIX-7v-fyZ" secondAttribute="bottom" constant="20" id="Ro5-qQ-Yrb"/>
+                            <constraint firstItem="stq-LB-01a" firstAttribute="leading" secondItem="m2S-Jp-Qdl" secondAttribute="leading" constant="20" id="stq-CT-01a"/>
+                            <constraint firstItem="stq-LB-01a" firstAttribute="centerY" secondItem="stq-PB-01a" secondAttribute="centerY" id="stq-CT-02a"/>
+                            <constraint firstAttribute="trailing" secondItem="stq-PB-01a" secondAttribute="trailing" constant="20" id="stq-CT-03a"/>
+                            <constraint firstItem="stq-PB-01a" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="stq-LB-01a" secondAttribute="trailing" constant="20" id="stq-CT-04a"/>
+                            <constraint firstItem="stq-LB-03a" firstAttribute="top" secondItem="stq-LB-01a" secondAttribute="bottom" constant="20" id="stq-CT-05a"/>
+                            <constraint firstItem="stq-LB-03a" firstAttribute="leading" secondItem="m2S-Jp-Qdl" secondAttribute="leading" constant="20" id="stq-CT-06a"/>
+                            <constraint firstItem="stq-LB-03a" firstAttribute="centerY" secondItem="stq-PB-02a" secondAttribute="centerY" id="stq-CT-07a"/>
+                            <constraint firstAttribute="trailing" secondItem="stq-PB-02a" secondAttribute="trailing" constant="20" id="stq-CT-08a"/>
+                            <constraint firstItem="stq-PB-02a" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="stq-LB-03a" secondAttribute="trailing" constant="20" id="stq-CT-09a"/>
+                            <constraint firstItem="ovd-bD-YWD" firstAttribute="top" secondItem="stq-LB-03a" secondAttribute="bottom" constant="20" id="stq-CT-10a"/>
                             <constraint firstItem="msp-LB-01a" firstAttribute="top" secondItem="ovd-bD-YWD" secondAttribute="bottom" constant="20" id="msp-CT-01a"/>
                             <constraint firstItem="msp-LB-01a" firstAttribute="leading" secondItem="m2S-Jp-Qdl" secondAttribute="leading" constant="20" id="msp-CT-02a"/>
                             <constraint firstItem="msp-LB-01a" firstAttribute="centerY" secondItem="msp-PB-01a" secondAttribute="centerY" id="msp-CT-03a"/>
@@ -414,7 +520,15 @@
                             <constraint firstItem="err-NF-01a" firstAttribute="leading" secondItem="SI3-e1-D9B" secondAttribute="leading" id="err-CT-02a"/>
                             <constraint firstItem="err-NF-04a" firstAttribute="top" secondItem="err-NF-01a" secondAttribute="bottom" constant="5" id="err-CT-03a"/>
                             <constraint firstItem="err-NF-04a" firstAttribute="leading" secondItem="SI3-e1-D9B" secondAttribute="leading" id="err-CT-04a"/>
-                            <constraint firstItem="mrq-CB-01a" firstAttribute="top" secondItem="err-NF-04a" secondAttribute="bottom" constant="20" id="mrq-CT-01a"/>
+                            <constraint firstItem="art-EN-01a" firstAttribute="top" secondItem="err-NF-04a" secondAttribute="bottom" constant="20" id="mrq-CT-01a"/>
+                            <constraint firstItem="art-EN-01a" firstAttribute="leading" secondItem="SI3-e1-D9B" secondAttribute="leading" id="art-CT-01a"/>
+                            <constraint firstItem="art-EN-04a" firstAttribute="top" secondItem="art-EN-01a" secondAttribute="bottom" constant="5" id="art-CT-02a"/>
+                            <constraint firstItem="art-EN-04a" firstAttribute="leading" secondItem="SI3-e1-D9B" secondAttribute="leading" id="art-CT-03a"/>
+                            <constraint firstItem="art-TR-01a" firstAttribute="top" secondItem="art-EN-04a" secondAttribute="bottom" constant="10" id="art-CT-04a"/>
+                            <constraint firstItem="art-TR-01a" firstAttribute="leading" secondItem="SI3-e1-D9B" secondAttribute="leading" constant="18" id="art-CT-05a"/>
+                            <constraint firstItem="art-TR-05a" firstAttribute="top" secondItem="art-TR-01a" secondAttribute="bottom" constant="5" id="art-CT-06a"/>
+                            <constraint firstItem="art-TR-05a" firstAttribute="leading" secondItem="SI3-e1-D9B" secondAttribute="leading" constant="18" id="art-CT-07a"/>
+                            <constraint firstItem="mrq-CB-01a" firstAttribute="top" secondItem="art-TR-05a" secondAttribute="bottom" constant="20" id="art-CT-08a"/>
                             <constraint firstItem="mrq-CB-01a" firstAttribute="leading" secondItem="SI3-e1-D9B" secondAttribute="leading" id="mrq-CT-02a"/>
                             <constraint firstItem="mrq-CB-04a" firstAttribute="top" secondItem="mrq-CB-01a" secondAttribute="bottom" constant="5" id="mrq-CT-03a"/>
                             <constraint firstItem="mrq-CB-04a" firstAttribute="leading" secondItem="SI3-e1-D9B" secondAttribute="leading" id="mrq-CT-04a"/>

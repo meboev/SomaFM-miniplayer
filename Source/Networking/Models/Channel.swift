@@ -22,15 +22,39 @@ public struct Channel: Codable {
     let playlists: [Playlist]
 
     var bestQualityPlaylist: Playlist? {
-        if let playlist = playlists.first(where: { $0.quality == .highest && $0.format == .aac }) {
-            return playlist
-        } else if let playlist = playlists.first(where: { $0.quality == .highest }) {
-            return playlist
-        } else if let playlist = playlists.first(where: { $0.quality == .high }) {
-            return playlist
-        } else {
-            return playlists.first
+        let prefFormat = Settings.preferredFormat  // 0=Any, 1=AAC, 2=MP3
+        let prefQuality = Settings.preferredQuality  // 0=Highest, 1=High, 2=Low
+
+        let targetFormats: [Playlist.Format]
+        switch prefFormat {
+        case 1: targetFormats = [.aac, .aacp]
+        case 2: targetFormats = [.mp3]
+        default: targetFormats = [.aac, .aacp, .mp3]
         }
+
+        let targetQualities: [Playlist.Quality]
+        switch prefQuality {
+        case 0: targetQualities = [.highest, .high, .low]
+        case 1: targetQualities = [.high, .highest, .low]
+        case 2: targetQualities = [.low, .high, .highest]
+        default: targetQualities = [.highest, .high, .low]
+        }
+
+        // Try preferred format + preferred quality order
+        for quality in targetQualities {
+            if let match = playlists.first(where: { targetFormats.contains($0.format) && $0.quality == quality }) {
+                return match
+            }
+        }
+
+        // Fallback: any format with preferred quality order
+        for quality in targetQualities {
+            if let match = playlists.first(where: { $0.quality == quality }) {
+                return match
+            }
+        }
+
+        return playlists.first
     }
 
     public init(from decoder: Decoder) throws {

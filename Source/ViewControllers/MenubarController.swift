@@ -108,11 +108,15 @@ class MenubarController: NSObject {
 
         let stationsItem = NSMenuItem(title: "Stations", action: nil, keyEquivalent: "")
         stationsItem.submenu = stationsMenu
+        stationsMenu.delegate = self
         rightClickMenu.addItem(stationsItem)
         rightClickMenu.addItem(NSMenuItem.separator())
         let preferencesItem = NSMenuItem(title: "Preferences...", action: #selector(MenubarController.openPreferences(_:)), keyEquivalent: "")
         preferencesItem.target = self
         rightClickMenu.addItem(preferencesItem)
+        let statisticsItem = NSMenuItem(title: "Statistics...", action: #selector(MenubarController.openStatistics(_:)), keyEquivalent: "")
+        statisticsItem.target = self
+        rightClickMenu.addItem(statisticsItem)
         rightClickMenu.addItem(NSMenuItem.separator())
         rightClickMenu.addItem(NSMenuItem(title: "Quit SomaFM miniplayer", action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q"))
 
@@ -145,7 +149,16 @@ class MenubarController: NSObject {
         }
     }
 
+    private var stationsMenuNeedsUpdate = false
+
     @objc func updateStationsMenu() {
+        // Don't rebuild while the menu is visible — defer until next open
+        if stationsMenu.highlightedItem != nil {
+            stationsMenuNeedsUpdate = true
+            return
+        }
+        stationsMenuNeedsUpdate = false
+
         stationsMenu.removeAllItems()
 
         guard let channels = SomaAPI.channels, let sortedChannels = sortedChannels else {
@@ -207,12 +220,25 @@ class MenubarController: NSObject {
 
         if truncatedTrackName != lastNotifiedTrack && RadioPlayer.player.timeControlStatus == .playing {
             lastNotifiedTrack = truncatedTrackName
-            if Settings.notificationsEnabled {
-                showUserNotification()
-            }
+            cachedTrackArtworkKey = nil
+            cachedTrackImage = nil
+            SessionStats.shared.recordSongPlayed()
             MusicSearchAPI.searchTrack()
-            updateNowPlayingInfo()
             updateMarquee()
+
+            if let channel = SomaAPI.lastPlayedChannel {
+                fetchArtwork(for: channel) { [weak self] in
+                    self?.updateNowPlayingInfo()
+                    if Settings.notificationsEnabled {
+                        self?.showUserNotification()
+                    }
+                }
+            } else {
+                updateNowPlayingInfo()
+                if Settings.notificationsEnabled {
+                    showUserNotification()
+                }
+            }
         }
     }
 
@@ -246,6 +272,10 @@ class MenubarController: NSObject {
             preferencesWindowController.showWindow(sender)
             preferencesWindowController.window?.delegate = appDelegate
         }
+    }
+
+    @objc func openStatistics(_ sender: NSMenuItem) {
+        StatisticsViewController.showWindow()
     }
 
     @objc func togglePlay() {
@@ -310,6 +340,8 @@ class MenubarController: NSObject {
     private func selectChannel(_ channel: Channel) {
         guard let channels = SomaAPI.channels, let selectedChannelIdx = channels.firstIndex(where: { $0.id == channel.id }) else { return }
 
+        SessionStats.shared.recordChannelChange()
+
         // Selecting a channel implies play mode
         Settings.playMode = true
 
@@ -336,22 +368,44 @@ class MenubarController: NSObject {
 
     // MARK: - Status Icon (colored)
 
+    private enum IconState: Hashable {
+        case stopped
+        case playingDark, playingLight
+        case bufferingDark, bufferingLight
+    }
+    private var iconCache: [IconState: NSImage] = [:]
+
     private func updateStatusIcon() {
         let isPlaying = RadioPlayer.player.timeControlStatus == .playing
         let isDark = (statusItem.button?.effectiveAppearance.bestMatch(from: [.darkAqua, .aqua]) == .darkAqua)
 
+        let state: IconState
         if !Settings.playMode {
-            currentIcon = tintedImage(named: "media_play", color: NSColor(red: 0.906, green: 0.188, blue: 0.153, alpha: 1.0))
+            state = .stopped
         } else if isPlaying {
-            let green = isDark
-                ? NSColor(red: 0.298, green: 0.851, blue: 0.392, alpha: 1.0)
-                : NSColor(red: 0.133, green: 0.545, blue: 0.133, alpha: 1.0)
-            currentIcon = tintedImage(named: "media_pause", color: green)
+            state = isDark ? .playingDark : .playingLight
         } else {
-            let amber = isDark
-                ? NSColor(red: 0.945, green: 0.769, blue: 0.059, alpha: 1.0)
-                : NSColor(red: 0.750, green: 0.580, blue: 0.000, alpha: 1.0)
-            currentIcon = tintedImage(named: "media_pause", color: amber)
+            state = isDark ? .bufferingDark : .bufferingLight
+        }
+
+        if let cached = iconCache[state] {
+            currentIcon = cached
+        } else {
+            let icon: NSImage?
+            switch state {
+            case .stopped:
+                icon = tintedImage(named: "media_play", color: NSColor(red: 0.906, green: 0.188, blue: 0.153, alpha: 1.0))
+            case .playingDark:
+                icon = tintedImage(named: "media_pause", color: NSColor(red: 0.298, green: 0.851, blue: 0.392, alpha: 1.0))
+            case .playingLight:
+                icon = tintedImage(named: "media_pause", color: NSColor(red: 0.133, green: 0.545, blue: 0.133, alpha: 1.0))
+            case .bufferingDark:
+                icon = tintedImage(named: "media_pause", color: NSColor(red: 0.945, green: 0.769, blue: 0.059, alpha: 1.0))
+            case .bufferingLight:
+                icon = tintedImage(named: "media_pause", color: NSColor(red: 0.750, green: 0.580, blue: 0.000, alpha: 1.0))
+            }
+            currentIcon = icon
+            if let icon = icon { iconCache[state] = icon }
         }
 
         statusItem.button?.image = currentIcon
@@ -417,30 +471,70 @@ class MenubarController: NSObject {
         }
 
         // Set artwork if cached
-        if let artwork = cachedArtwork {
+        if Settings.artworkEnabled, let artwork = cachedArtwork {
             info[MPMediaItemPropertyArtwork] = artwork
         }
 
         infoCenter.nowPlayingInfo = info
         infoCenter.playbackState = .playing
-
-        // Fetch artwork if not cached
-        if cachedArtwork == nil, let channel = SomaAPI.lastPlayedChannel {
-            fetchArtwork(for: channel)
-        }
     }
 
     private var cachedArtwork: MPMediaItemArtwork?
     private var cachedArtworkChannelId: String?
+    private var cachedTrackArtworkKey: String?
+    private var cachedTrackImage: NSImage?
 
-    private func fetchArtwork(for channel: Channel) {
-        guard channel.id != cachedArtworkChannelId else { return }
+    private func fetchArtwork(for channel: Channel, completion: @escaping () -> Void) {
+        guard Settings.artworkEnabled else {
+            cachedArtwork = nil
+            cachedTrackImage = nil
+            completion()
+            return
+        }
+
+        // Try track-specific artwork first
+        if Settings.trackArtworkEnabled, let trackName = RadioPlayer.currentTrack,
+           let parsed = TrackArtworkFetcher.parseTrack(trackName) {
+            let trackKey = "\(parsed.artist)-\(parsed.title)"
+            guard trackKey != cachedTrackArtworkKey else {
+                completion()
+                return
+            }
+
+            TrackArtworkFetcher.fetchImage(artist: parsed.artist, title: parsed.title) { [weak self] image in
+                guard let self = self else { return }
+                if let image = image {
+                    self.cachedTrackArtworkKey = trackKey
+                    self.cachedTrackImage = image
+                    self.cachedArtwork = MPMediaItemArtwork(boundsSize: image.size) { _ in image }
+                    completion()
+                } else {
+                    // Fallback to station artwork
+                    self.cachedTrackArtworkKey = nil
+                    self.cachedTrackImage = nil
+                    self.fetchStationArtwork(for: channel, completion: completion)
+                }
+            }
+        } else {
+            // Only station artwork
+            fetchStationArtwork(for: channel, completion: completion)
+        }
+    }
+
+    private func fetchStationArtwork(for channel: Channel, completion: @escaping () -> Void) {
+        guard channel.id != cachedArtworkChannelId else {
+            completion()
+            return
+        }
 
         ArtworkCache.fetchImage(for: channel) { [weak self] image in
-            guard let self = self, let image = image else { return }
-            self.cachedArtworkChannelId = channel.id
-            self.cachedArtwork = MPMediaItemArtwork(boundsSize: image.size) { _ in image }
-            self.updateNowPlayingInfo()
+            guard let self = self else { return }
+            if let image = image {
+                self.cachedArtworkChannelId = channel.id
+                self.cachedTrackImage = image
+                self.cachedArtwork = MPMediaItemArtwork(boundsSize: image.size) { _ in image }
+            }
+            completion()
         }
     }
 
@@ -455,31 +549,22 @@ class MenubarController: NSObject {
         content.title = stationName
         content.body = trackName
 
-        // Attach station artwork if available
-        if let channel = SomaAPI.lastPlayedChannel {
-            attachArtwork(for: channel, to: content) {
-                let request = UNNotificationRequest(identifier: "nowPlaying", content: content, trigger: nil)
-                center.add(request)
-            }
-        } else {
-            let request = UNNotificationRequest(identifier: "nowPlaying", content: content, trigger: nil)
-            center.add(request)
+        if Settings.artworkEnabled, let image = cachedTrackImage {
+            attachImage(image, to: content)
         }
+
+        let request = UNNotificationRequest(identifier: "nowPlaying", content: content, trigger: nil)
+        center.add(request)
     }
 
-    private func attachArtwork(for channel: Channel, to content: UNMutableNotificationContent, completion: @escaping () -> Void) {
-        ArtworkCache.fetchImage(for: channel) { image in
-            if let image = image, let tiffData = image.tiffRepresentation {
-                let tempURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString + ".jpg")
-                if let bitmap = NSBitmapImageRep(data: tiffData),
-                   let jpegData = bitmap.representation(using: .jpeg, properties: [.compressionFactor: 0.8]) {
-                    try? jpegData.write(to: tempURL)
-                    if let attachment = try? UNNotificationAttachment(identifier: "artwork", url: tempURL, options: nil) {
-                        content.attachments = [attachment]
-                    }
-                }
-            }
-            completion()
+    private func attachImage(_ image: NSImage, to content: UNMutableNotificationContent) {
+        guard let tiffData = image.tiffRepresentation,
+              let bitmap = NSBitmapImageRep(data: tiffData),
+              let jpegData = bitmap.representation(using: .jpeg, properties: [.compressionFactor: 0.8]) else { return }
+        let tempURL = FileManager.default.temporaryDirectory.appendingPathComponent("somafm-notification.jpg")
+        try? jpegData.write(to: tempURL)
+        if let attachment = try? UNNotificationAttachment(identifier: "artwork", url: tempURL, options: nil) {
+            content.attachments = [attachment]
         }
     }
 
@@ -646,5 +731,18 @@ class MenubarController: NSObject {
         marqueeTimer = nil
         marqueePixelOffset = 0
         marqueeTextWidth = 0
+    }
+}
+
+// MARK: - NSMenuDelegate
+
+extension MenubarController: NSMenuDelegate {
+    func menuWillOpen(_ menu: NSMenu) {
+        if menu == stationsMenu {
+            if stationsMenuNeedsUpdate {
+                updateStationsMenu()
+            }
+            SomaAPI.refreshIfStale()
+        }
     }
 }

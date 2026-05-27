@@ -1,8 +1,9 @@
 # SomaFM miniplayer
 
-[![Latest Release](https://img.shields.io/badge/release-2.0.1-blue.svg)](https://github.com/meboev/SomaFM-miniplayer/releases/latest)
+[![Latest Release](https://img.shields.io/badge/release-2.0.2-blue.svg)](https://github.com/meboev/SomaFM-miniplayer/releases/latest)
 [![License](https://img.shields.io/github/license/meboev/SomaFM-miniplayer.svg)](LICENSE.md)
 ![Platform](https://img.shields.io/badge/platform-macos%20(Apple%20Silicon)-lightgrey.svg)
+![Tested](https://img.shields.io/badge/tested-macOS%2026-success.svg)
 
 ![Screenshot](shot.png)
 
@@ -13,10 +14,13 @@ This is an unofficial player that gives you minimal, background playback of Soma
 * Menu bar controls with colored status icons (red/amber/green, adaptive for light/dark mode)
 * Scrolling track name in menu bar with configurable width and frame rate
 * Media key support (play/pause, previous/next station) via keyboard, Control Center, Lock Screen, and Bluetooth devices
-* Now Playing integration with station artwork in Control Center and Lock Screen
-* System notifications for track changes with station artwork
+* Now Playing integration with track-specific or station artwork in Control Center and Lock Screen
+* System notifications for track changes with album artwork (click to search track)
+* Track-specific album art fetched from iTunes Search API (with disk cache)
 * Stations menu with listener counts and genre tooltips
-* Track search integration (YouTube Music, Spotify, Apple Music)
+* Track search integration (YouTube Music, Spotify, Apple Music) — via menu item or notification click
+* Stream format and quality preferences (Any/AAC/MP3, Highest/High/Low) with immediate apply
+* Statistics window with live stream info, session stats, and playback details
 * Automatic reconnection on network errors (5s retry)
 * Persistent play mode (survives app restarts)
 * Start at Login support
@@ -33,25 +37,33 @@ This is an unofficial player that gives you minimal, background playback of Soma
 ./install.sh
 ```
 
-## Changes in 2.0.1
+## Changes in 2.0.2
 
 * Colored menu bar icons: red (stopped), amber (connecting/offline), green (playing) — darker variants in light mode
 * Added scrolling track name in menu bar ("Show track in menu bar" preference)
 * Configurable scroller width (50–400px, default 50px) and frame rate (5–60fps, default 60fps)
+* Track-specific album artwork via iTunes Search API with disk cache and fallback to station art
+* Added "Show artwork" and "Track artwork" preferences (both enabled by default)
+* Clicking a notification opens the configured track search provider in the browser
 * Added persistent play mode with automatic retry on network errors
-* Now Playing integration with station artwork (Control Center, Lock Screen, media keys, Bluetooth controls)
+* Now Playing integration with artwork (Control Center, Lock Screen, media keys, Bluetooth controls)
 * Previous/next media keys switch stations
-* Track notifications now include station artwork
+* Track notifications include album or station artwork
 * Stations menu shows listener counts and genre tooltips
 * Informative menu bar icon tooltip (version, station, description, current track)
+* Stream format preference (Any/AAC/MP3, default Any) and quality preference (Highest/High/Low)
+* Changing stream format or quality applies immediately if playing
+* Statistics window (right-click menu) with live playback state, station info, stream details, and session stats
 * Added "Error notifications" preference (disabled by default)
 * Renamed "Enable notifications" to "Track notifications"
 * Renamed "Music search provider" to "Track search provider"
 * Removed all modal error dialogs — errors shown via system notifications (if enabled)
+* Track artwork cache cleared on each app launch
 * Fixed channel description decoding bug
 * Replaced all `URLSession` instances with shared session
 * Removed `NSAllowsArbitraryLoads` (all endpoints are HTTPS)
 * Code cleanup: removed dead code, updated copyrights, modernized to `@main`
+* Tested on macOS 26 (Tahoe)
 
 ## Changes in 2.0.0
 

@@ -56,6 +56,7 @@ struct RadioPlayer {
             }
 
             DispatchQueue.main.async {
+                SessionStats.shared.snapshotCurrentItemBytes()
                 let playerItem = makePlayerItem(url: streamURL)
 
                 player.replaceCurrentItem(with: playerItem)
@@ -77,6 +78,7 @@ struct RadioPlayer {
             guard let streamURL = streamURL else { return }
 
             DispatchQueue.main.async {
+                SessionStats.shared.snapshotCurrentItemBytes()
                 let playerItem = makePlayerItem(url: streamURL)
                 player.replaceCurrentItem(with: playerItem)
                 player.play()
@@ -190,7 +192,7 @@ struct RadioPlayer {
     }
 
     private static func makePlayerItem(url: URL) -> AVPlayerItem {
-        let headers = ["User-Agent": "SomaFMminiplayer/2.0.1 (macOS)"]
+        let headers = ["User-Agent": "SomaFMminiplayer/2.0.2 (macOS)"]
         let asset = AVURLAsset(url: url, options: ["AVURLAssetHTTPHeaderFieldsKey": headers])
         let item = AVPlayerItem(asset: asset)
         item.preferredForwardBufferDuration = 5

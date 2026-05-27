@@ -45,7 +45,10 @@ struct ArtworkCache {
                 return
             }
             save(data: data, for: channel.id)
-            DispatchQueue.main.async { completion(image) }
+            DispatchQueue.main.async {
+                SessionStats.shared.recordStationArtwork(bytes: Int64(data.count))
+                completion(image)
+            }
         }.resume()
     }
 

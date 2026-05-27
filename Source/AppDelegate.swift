@@ -8,7 +8,7 @@ import MediaPlayer
 import UserNotifications
 
 @main
-class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
+class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, UNUserNotificationCenterDelegate {
 
     let menubarController = MenubarController()
 
@@ -36,11 +36,18 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
             UserDefaultsKey.playMode: true,
             UserDefaultsKey.showTrackInMenuBar: false,
             UserDefaultsKey.marqueeWidth: Double(50),
-            UserDefaultsKey.marqueeFrameRate: 60
+            UserDefaultsKey.marqueeFrameRate: 60,
+            UserDefaultsKey.artworkEnabled: true,
+            UserDefaultsKey.trackArtworkEnabled: true,
+            UserDefaultsKey.preferredFormat: 0,
+            UserDefaultsKey.preferredQuality: 0
         ])
 
         Log.info("Starting \(AppDelegate.bundleId) v\(AppDelegate.bundleShortVersion)")
 
+        TrackArtworkFetcher.clearCache()
+
+        UNUserNotificationCenter.current().delegate = self
         UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound]) { _, _ in }
 
         setupRemoteCommands()
@@ -77,5 +84,20 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
             self?.menubarController.nextTap()
             return .success
         }
+    }
+
+    // MARK: - UNUserNotificationCenterDelegate
+
+    func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification, withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
+        completionHandler([.banner, .sound])
+    }
+
+    func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse, withCompletionHandler completionHandler: @escaping () -> Void) {
+        if response.actionIdentifier == UNNotificationDefaultActionIdentifier {
+            if let url = MusicSearchAPI.trackSearchURL {
+                NSWorkspace.shared.open(url)
+            }
+        }
+        completionHandler()
     }
 }

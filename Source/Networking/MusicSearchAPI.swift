@@ -26,17 +26,19 @@ public struct MusicSearchAPI {
 
 private extension MusicSearchAPI {
     static func searchYouTubeMusic(_ trackName: String) {
-        guard let encoded = trackName.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) else { return }
-        trackSearchURL = URL(string: "https://music.youtube.com/search?q=" + encoded)
+        var components = URLComponents(string: "https://music.youtube.com/search")
+        components?.queryItems = [URLQueryItem(name: "q", value: trackName)]
+        trackSearchURL = components?.url
     }
 
     static func searchSpotify(_ trackName: String) {
-        guard let encoded = trackName.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) else { return }
+        guard let encoded = trackName.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed) else { return }
         trackSearchURL = URL(string: "https://open.spotify.com/search/" + encoded)
     }
 
     static func searchAppleMusic(_ trackName: String) {
-        guard let encoded = trackName.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) else { return }
-        trackSearchURL = URL(string: "https://music.apple.com/us/search?term=" + encoded)
+        var components = URLComponents(string: "https://music.apple.com/us/search")
+        components?.queryItems = [URLQueryItem(name: "term", value: trackName)]
+        trackSearchURL = components?.url
     }
 }
