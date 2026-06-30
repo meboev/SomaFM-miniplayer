@@ -7,6 +7,7 @@ BUNDLE_ID="com.milenboev.somafm"
 echo "Quitting $APP_NAME if running..."
 osascript -e 'tell application "SomaFM miniplayer" to quit' 2>/dev/null || true
 pkill -f "SomaFM miniplayer" 2>/dev/null || true
+pkill -x "SomaFM miniplayer" 2>/dev/null || true
 sleep 1
 
 if [ ! -d "$INSTALL_DIR/$APP_NAME" ]; then

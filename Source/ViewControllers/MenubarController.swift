@@ -280,15 +280,27 @@ class MenubarController: NSObject {
 
     @objc func togglePlay() {
         if Settings.playMode {
-            // Currently in play mode -> switch to stopped
-            Settings.playMode = false
-            RadioPlayer.player.pause()
-            stopRetryTimer()
+            pausePlayback()
         } else {
-            // Switch to play mode
-            Settings.playMode = true
-            startPlaying()
+            playPlayback()
         }
+        updateStatusIcon()
+    }
+
+    @objc func playPlayback() {
+        guard !Settings.playMode || RadioPlayer.player.timeControlStatus != .playing else { return }
+
+        Settings.playMode = true
+        startPlaying()
+        updateStatusIcon()
+    }
+
+    @objc func pausePlayback() {
+        guard Settings.playMode || RadioPlayer.player.timeControlStatus != .paused else { return }
+
+        Settings.playMode = false
+        RadioPlayer.player.pause()
+        stopRetryTimer()
         updateStatusIcon()
     }
 

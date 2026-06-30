@@ -1,2 +1,2 @@
 #!/bin/bash
-open -a "SomaFM miniplayer"
+open "/Applications/SomaFM miniplayer.app"

@@ -65,11 +65,11 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, UNUserNoti
         let commandCenter = MPRemoteCommandCenter.shared()
 
         commandCenter.playCommand.addTarget { [weak self] _ in
-            self?.menubarController.togglePlay()
+            self?.menubarController.playPlayback()
             return .success
         }
         commandCenter.pauseCommand.addTarget { [weak self] _ in
-            self?.menubarController.togglePlay()
+            self?.menubarController.pausePlayback()
             return .success
         }
         commandCenter.togglePlayPauseCommand.addTarget { [weak self] _ in
