@@ -192,7 +192,7 @@ struct RadioPlayer {
     }
 
     private static func makePlayerItem(url: URL) -> AVPlayerItem {
-        let headers = ["User-Agent": "SomaFMminiplayer/2.0.2 (macOS)"]
+        let headers = ["User-Agent": "SomaFMminiplayer/2.0.3 (macOS)"]
         let asset = AVURLAsset(url: url, options: ["AVURLAssetHTTPHeaderFieldsKey": headers])
         let item = AVPlayerItem(asset: asset)
         item.preferredForwardBufferDuration = 5

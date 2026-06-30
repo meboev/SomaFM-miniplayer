@@ -2,7 +2,7 @@
 set -e
 
 APP_PATH="./build/Release/SomaFM miniplayer.app"
-DMG_NAME="SomaFM-miniplayer-2.0.2.dmg"
+DMG_NAME="SomaFM-miniplayer-2.0.3.dmg"
 DMG_DIR="./dmg_contents"
 
 if [ ! -d "$APP_PATH" ]; then

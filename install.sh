@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-DMG_NAME="SomaFM-miniplayer-2.0.2.dmg"
+DMG_NAME="SomaFM-miniplayer-2.0.3.dmg"
 APP_NAME="SomaFM miniplayer.app"
 VOLUME_NAME="SomaFM miniplayer"
 INSTALL_DIR="/Applications"

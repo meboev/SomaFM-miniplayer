@@ -1,6 +1,6 @@
 # SomaFM miniplayer
 
-[![Latest Release](https://img.shields.io/badge/release-2.0.2-blue.svg)](https://github.com/meboev/SomaFM-miniplayer/releases/latest)
+[![Latest Release](https://img.shields.io/badge/release-2.0.3-blue.svg)](https://github.com/meboev/SomaFM-miniplayer/releases/latest)
 [![License](https://img.shields.io/github/license/meboev/SomaFM-miniplayer.svg)](LICENSE.md)
 ![Platform](https://img.shields.io/badge/platform-macos%20(Apple%20Silicon)-lightgrey.svg)
 ![Tested](https://img.shields.io/badge/tested-macOS%2026-success.svg)
@@ -36,6 +36,11 @@ This is an unofficial player that gives you minimal, background playback of Soma
 ./create-dmg.sh
 ./install.sh
 ```
+
+## Changes in 2.0.3
+
+* Fixed remote play/pause handling so external pause and play commands are no longer treated as toggles
+* Fixed local run script to launch the installed `/Applications` app instead of a stale Xcode DerivedData build
 
 ## Changes in 2.0.2
 
